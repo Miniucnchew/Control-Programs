@@ -12,6 +12,15 @@
 #include <inttypes.h>  // uint8_t, etc
 #include <linux/i2c-dev.h> // I2C bus definitions
 
+long int start_time;
+long int hb_difference;
+long int process_time;
+
+struct timespec gettime_now;
+int hb_10ms_timer = 0;
+int hb_100ms_timer = 0;
+
+
 int fd_mcp;
 int mcp4725_address = 0x62;
 int16_t val_mcp;
@@ -160,7 +169,21 @@ int main()   {
   struct timespec ts;
   ts.tv_sec = 0;
   
+  
+  
+  
   while (1) {
+    
+      //~ hb_difference = 0;
+      //~ clock_gettime(CLOCK_REALTIME, &gettime_now);
+      //~ start_time = gettime_now.tv_nsec; 
+      //~ 
+      //~ printf("%d\n", start_time);
+      
+      clock_t t;
+      t = clock();
+      hb_difference = 0;
+      
       
       if (i > 9) i = 0;
       
@@ -205,18 +228,28 @@ int main()   {
       
       ts.tv_nsec = sleep_val;
       
-      printf("Pot Reading: %04d | val_mcp: %04d | Sleep Time: %01.5f msec | i: %03d\n",
-      val_ads, val_mcp, sleep_val/1000000.0, i);
+      printf("Pot Reading: %04d | val_mcp: %04d | Sleep Time: %04d msec | i: %03d | Process Time: ",
+      val_ads, val_mcp, sleep_val/1000, i);
       
       //~ nanosleep(&ts, NULL);
       
-      DelayMicrosecondsNoSleep(val_ads*5);
+      process_time = clock() - t;
+      printf("%d\n", process_time);
+      
+      DelayMicrosecondsNoSleep(val_ads);
       
       if (val_ads == 0)   break;
-
-    //} // end for loop
+    
+    
+      
+    //~ while ( hb_difference < val_ads+val_ads/10+process_time ) {
+      //~ hb_difference = clock() - t;
+      //~ printf("%f\n", ((float)hb_difference)/CLOCKS_PER_SEC);
+    //~ }
     
     if (val_ads == 0)   break;
+    
+    
     
   } // end while loop
 
