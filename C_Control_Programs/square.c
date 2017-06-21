@@ -29,6 +29,29 @@ const float VPS = 4.096 / 2048.0; // volts per step for ads
 
 int sleep_val;
 
+
+
+void DelayMicrosecondsNoSleep (int delay_us)
+{
+	long int start_time;
+	long int time_difference;
+	struct timespec gettime_now;
+
+	clock_gettime(CLOCK_REALTIME, &gettime_now);
+	start_time = gettime_now.tv_nsec;		//Get nS value
+	while (1)
+	{
+		clock_gettime(CLOCK_REALTIME, &gettime_now);
+		time_difference = gettime_now.tv_nsec - start_time;
+		if (time_difference < 0)
+			time_difference += 1000000000;				//(Rolls over every 1 second)
+		if (time_difference > (delay_us * 1000))		//Delay for # nS
+			break;
+	}
+}
+
+
+
 const uint16_t log_single_peak[10] = 
 {100, 200, 400, 800,1600, 
   3200, 1600, 800, 400, 200};
@@ -185,7 +208,9 @@ int main()   {
       printf("Pot Reading: %04d | val_mcp: %04d | Sleep Time: %01.5f msec | i: %03d\n",
       val_ads, val_mcp, sleep_val/1000000.0, i);
       
-      nanosleep(&ts, NULL);
+      //~ nanosleep(&ts, NULL);
+      
+      DelayMicrosecondsNoSleep(val_ads*5);
       
       if (val_ads == 0)   break;
 
