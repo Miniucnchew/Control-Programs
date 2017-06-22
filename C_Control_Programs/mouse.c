@@ -1,76 +1,35 @@
-//~ #include<graphics.h>
-//~ #include<conio.h>
-#include<stdio.h>
-#include<dos.h>
- 
-int initmouse();
-void showmouseptr();
-void hidemouseptr();
-void getmousepos(int*,int*,int*);
- 
-union REGS i, o;
- 
-main()
-{
-   int gd = DETECT, gm, status, button, x, y, tempx, tempy;
-   char array[50];
- 
-   initgraph(&gd,&gm,"C:\\TC\\BGI");
-   settextstyle(DEFAULT_FONT,0,2);
- 
-   status = initmouse();
- 
-   if ( status == 0 )
-      printf("Mouse support not available.\n");
-   else
-   {
-      showmouseptr();
- 
-      getmousepos(&button,&x,&y);
- 
-      tempx = x;
-      tempy = y;
- 
-      while(!kbhit())
-      {
-         getmousepos(&button,&x,&y);
- 
-         if( x == tempx && y == tempy )
-         {}
-         else
-         {
-            cleardevice();
-            sprintf(array,"X = %d, Y = %d",x,y);
-            outtext(array);
-            tempx = x;
-            tempy = y;
-         }
-      }
-   }
- 
-   getch();
-   return 0;
+#include <X11/X.h>
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/Xos.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+
+
+int main(int argc, char *argv[]) {
+  //Get system window
+  Display *dsp=XOpenDisplay(NULL);
+  if (!dsp) {return 1;}
+  
+  XEvent event;
+
+  double z;
+  
+  while (1) {
+    /* get info about current pointer position */
+    XQueryPointer(dsp, RootWindow(dsp, DefaultScreen(dsp)),
+    &event.xbutton.root, &event.xbutton.window,
+    &event.xbutton.x_root, &event.xbutton.y_root,
+    &event.xbutton.x, &event.xbutton.y,
+    &event.xbutton.state);
+    
+    z = ((sin(event.xbutton.x) + sin(event.xbutton.y))+2)*1000;
+    
+    printf("Mouse Coordinates: %d %d | Z: %04d \n", event.xbutton.x, event.xbutton.y, (int)z);
+    sleep(0.01);
+  } //End while
+  
 }
- 
-int initmouse()
-{
-   i.x.ax = 0;
-   int86(0X33,&i,&o);
-   return ( o.x.ax );
-}
- 
-void showmouseptr()
-{
-   i.x.ax = 1;
-   int86(0X33,&i,&o);
-}
- 
-void getmousepos(int *button, int *x, int *y)
-{
-   i.x.ax = 3;
-   int86(0X33,&i,&o);
- 
-   *button = o.x.bx;
-   *x = o.x.cx;
-   *y = o.x.dx;
-}
+
