@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <string>
+#include <iostream>
 
 
 int spi_cs0_fd;				//file descriptor for the SPI device
@@ -34,10 +36,10 @@ int SpiOpenPort (int spi_device)
     //SPI_MODE_1 (0,1) 	CPOL = 0, CPHA = 1, Clock idle low, data is clocked in on falling edge, output data (change) on rising edge
     //SPI_MODE_2 (1,0) 	CPOL = 1, CPHA = 0, Clock idle high, data is clocked in on falling edge, output data (change) on rising edge
     //SPI_MODE_3 (1,1) 	CPOL = 1, CPHA = 1, Clock idle high, data is clocked in on rising, edge output data (change) on falling edge
-    spi_mode = SPI_MODE_0;
+    spi_mode = SPI_MODE_;
     
     //----- SET BITS PER WORD -----
-    spi_bitsPerWord = 16;
+    spi_bitsPerWord = 8;
     
     //----- SET SPI BUS SPEED -----
     spi_speed = 1000000;		//1000000 = 1MHz (1uS per bit) 
@@ -50,9 +52,9 @@ int SpiOpenPort (int spi_device)
 
 
     if (spi_device)
-    	*spi_cs_fd = open(string("/dev/spidev0.1").c_str(), O_RDWR);
+    	*spi_cs_fd = open(std::string("/dev/spidev0.1").c_str(), O_RDWR);
     else
-    	*spi_cs_fd = open(string("/dev/spidev0.0").c_str(), O_RDWR);
+    	*spi_cs_fd = open(std::string("/dev/spidev0.0").c_str(), O_RDWR);
 
     if (*spi_cs_fd < 0)
     {
@@ -180,11 +182,13 @@ int SpiWriteAndRead (int spi_device, unsigned char *data, int length)
 int main ( void ) {
   if ( !SpiOpenPort(0) ) return 0;
   
-  writeBuf[0] = 0b01111000;
+  while (1) {
+  writeBuf[0] = 0b00111111;
   writeBuf[1] = 0b00000000;
   
-  int nx = SpiWriteAndRead(0, writeBuf, 2);
-  
+  SpiWriteAndRead(0, writeBuf, 2);
+  usleep(100);
+  }
   SpiClosePort(0);
   
   return 0;
