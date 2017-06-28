@@ -33,8 +33,9 @@ void createLookup (void) {
   for (x = 0; x < 1600; x++) {
     for (y = 0; y < 1200; y++) {
       
-      lookup[x][y] = 255.0*fabs(sin(M_PI*(50*x/1600.0+y/1200.0)));
-      
+      lookup[x][y] = 100 + 20.0*sin(M_PI*2*(50*x/1600.0+y/1200.0));
+      //~ if (lookup[x][y] < 100) {lookup[x][y] = 100;}
+      //~ else if (lookup[x][y] > 175) {lookup[x][y] = 175;}
       //~ if (y == 0) { fprintf(fp, "{ %d, ", z[x][y]); }
       //~ else if (y == 1199) {fprintf(fp, "%d}\n", z[x][y]); }
       //~ else { fprintf(fp, "%d, ", z[x][y]); }
@@ -77,7 +78,7 @@ void myInterrupt0 (void) {
 
   wiringPiSPIDataRW(0, writeBuf, 2);
 
-  printf("X: %04d | Y: %04d | Z: %04d\n", x, y, (int)z);
+  //~ printf("X: %04d | Y: %04d | Z: %04d\n", x, y, (int)z);
 
    }
 
