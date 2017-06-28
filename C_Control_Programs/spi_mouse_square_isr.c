@@ -14,16 +14,11 @@
 #include <wiringPi.h>
 #include <wiringPiSPI.h>
 
-// globalCounter:
-//	Global variable to count interrupts
-//	Should be declared volatile to make sure the compiler doesn't cache it.
 
-static volatile int globalCounter;
 Display *dsp;
 unsigned char writeBuf[2];
 float_t alpha, ma;
 long int process_time;
-long int cycle_time = 1; //millisecond
 
 static volatile double z;  
 clock_t t;
@@ -40,17 +35,21 @@ void myInterrupt0 (void) {
 
 
   /* get info about current pointer position */
-  //~ XQueryPointer(dsp, RootWindow(dsp, DefaultScreen(dsp)),
-  //~ &event.xbutton.root, &event.xbutton.window,
-  //~ &event.xbutton.x_root, &event.xbutton.y_root,
-  //~ &event.xbutton.x, &event.xbutton.y,
-  //~ &event.xbutton.state);
+  XQueryPointer(dsp, RootWindow(dsp, DefaultScreen(dsp)),
+  &event.xbutton.root, &event.xbutton.window,
+  &event.xbutton.x_root, &event.xbutton.y_root,
+  &event.xbutton.x, &event.xbutton.y,
+  &event.xbutton.state);
 
-  //~ z = event.xbutton.x/8;//((sin(event.xbutton.x) + sin(event.xbutton.y))+2)*125;
-  z=150;
+  //~ z = ((sin(event.xbutton.x) + sin(event.xbutton.y))+2)*50;
+
+
+  //~ z = event.xbutton.x/8;
+
+
   // The following two lines of code add a square wave into the signal
-  if (i == 0) {z += 50; i=1;}
-  else if (i == 1) {z -= 50; i=0;}
+  //~ if (i == 0) {z += 50; i=1;}
+  //~ else if (i == 1) {z -= 50; i=0;}
 
 
 
@@ -84,28 +83,19 @@ int main (void)
 {
   
   XInitThreads();
-  int myCounter;
   dsp=XOpenDisplay(NULL);
   if (!dsp) {return 1;}
   
-  //~ XLockDisplay(dsp);
-
-  
-  globalCounter = myCounter = 0 ;
-
-  
   wiringPiSetup ();
   wiringPiSPISetup(0, 16000000);
-
+  wiringPiISR (0, INT_EDGE_FALLING, &myInterrupt0);
+  
   piHiPri(99);
   
   while (1) {
     //~ t = clock();
   
-    wiringPiISR (0, INT_EDGE_FALLING, &myInterrupt0);
-    
     //~ process_time = clock() - t;
-    
     
     //~ printf("Z: %04d | Process Time: %d | Wait Time: %03ld\n", (int)z, process_time, process_time-cycle_time);
 
