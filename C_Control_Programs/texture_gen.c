@@ -33,7 +33,7 @@ void createLookup (void) {
   for (x = 0; x < 1600; x++) {
     for (y = 0; y < 1200; y++) {
       
-      lookup[x][y] = 255.0*fabs(sin(M_PI*(10*x/1600.0+3*y/1200.0)));
+      lookup[x][y] = 255.0*fabs(sin(M_PI*(50*x/1600.0+y/1200.0)));
       
       //~ if (y == 0) { fprintf(fp, "{ %d, ", z[x][y]); }
       //~ else if (y == 1199) {fprintf(fp, "%d}\n", z[x][y]); }
@@ -43,7 +43,7 @@ void createLookup (void) {
       
     }
   }
-  
+  printf("Finished with lookup table. Moving on to main program...\n\n\n");
   //~ fclose(fp);
 }
 
