@@ -1,0 +1,230 @@
+
+#include <X11/X.h>
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/Xos.h>
+#include <stdio.h>
+#include <sys/types.h> // open
+#include <sys/stat.h>  // open
+#include <fcntl.h>     // open
+#include <unistd.h>    // read/write usleep
+#include <stdlib.h>    // exit
+#include <inttypes.h>  // uint8_t, etc
+#include <linux/i2c-dev.h> // I2C bus definitions
+#include <math.h>
+#include <time.h>
+#include <string.h>
+#include <errno.h>
+#include <wiringPi.h>
+#include <wiringPiSPI.h>
+
+Display *dsp;
+unsigned char writeBuf[2];
+XEvent event;
+int x, y;
+int i=0;
+volatile int z;
+int lookup[1600][1200];
+
+int fd_ads;
+int ads_address = 0x48;
+uint8_t writeBuf_ads[3];
+uint8_t readBuf_ads[2];
+float myfloat_ads;
+
+const float VPS = 4.096 / 2048.0; // volts per step for ads
+
+int analog_val_0, analog_val_1, analog_val_2, analog_val_3;
+
+void createLookup (void) {
+  //~ FILE *fp;
+  
+  //~ fp = fopen("lookup_table.txt", "w+");
+  //~ fprintf(fp, "static const int lookup[1600][1200] = {");
+  
+  
+  for (x = 0; x < 1600; x++) {
+    for (y = 0; y < 1200; y++) {
+      
+      lookup[x][y] = 100 + 20.0*sin(M_PI*2*(50*x/1600.0+y/1200.0));
+      //~ if (lookup[x][y] < 100) {lookup[x][y] = 100;}
+      //~ else if (lookup[x][y] > 175) {lookup[x][y] = 175;}
+      //~ if (y == 0) { fprintf(fp, "{ %d, ", z[x][y]); }
+      //~ else if (y == 1199) {fprintf(fp, "%d}\n", z[x][y]); }
+      //~ else { fprintf(fp, "%d, ", z[x][y]); }
+      //~ 
+      //~ if (x == 1599) { fprintf( fp, "}") }
+      
+    }
+  }
+  //~ printf("Finished with lookup table. Moving on to main program...\n\n\n");
+  //~ fclose(fp);
+}
+
+void connect_ads(void) {
+  /* CONNECTING TO DEVICES */
+
+  // open ADC device on /dev/i2c-1 the default on Raspberry Pi B
+  if ((fd_ads = open("/dev/i2c-1", O_RDWR)) < 0) {
+    printf("Error: Couldn't open device! %d\n", fd_ads);
+    exit (1);
+  }
+
+  // connect to ADS1015 as i2c slave
+  if (ioctl(fd_ads, I2C_SLAVE, ads_address) < 0) {
+    printf("Error: Couldn't find device on address!\n");
+    exit (1);
+  }
+
+  /* DONE CONNECTING TO DEVICES */
+  
+  //*****************************************
+}
+
+void disconnect_ads(void) {
+  // power down ADS1115
+  writeBuf_ads[0] = 1;    // config register is 1
+  writeBuf_ads[1] = 0b11000011; // bit 15-8 0xC3 single shot on
+  writeBuf_ads[2] = 0b10000101; // bits 7-0  0x85
+  
+  if (write(fd_ads, writeBuf_ads, 3) != 3) {
+    perror("Write to register 1");
+    exit (1);
+  }
+
+  close(fd_ads);
+}
+
+void myInterrupt0 (void) { 
+
+
+  /* get info about current pointer position */
+  XQueryPointer(dsp,  RootWindow(dsp, DefaultScreen(dsp)),
+  &event.xbutton.root, &event.xbutton.window,
+  &event.xbutton.x_root, &event.xbutton.y_root,
+  &event.xbutton.x, &event.xbutton.y,
+  &event.xbutton.state);
+  
+  x = event.xbutton.x;
+  y = event.xbutton.y;
+
+  analog_val_0 = read_ads(0);
+  analog_val_1 = read_ads(1);
+  analog_val_2 = read_ads(2);
+  //~ analog_val_3 = read_ads(3);
+    
+  //~ printf("Pot Pos: %04d | Pot Force: %04d | Dist: %04d\n", analog_val_0, 
+  //~ analog_val_1, analog_val_2);
+  printf("%04d\n", analog_val_0);
+  
+  z = (int)lookup[x][y];
+
+
+  // The following two lines of code add a square wave into the signal
+  //~ if (i == 0) {z += 50; i=1;}
+  //~ else if (i == 1) {z -= 50; i=0;}    
+
+
+  //~ if (i == 10) { i = 0; }
+  //~ z += i;
+  //~ i++;
+
+  writeBuf[0] = ((uint16_t)z >> 4) | 0b00110000;
+  writeBuf[1] = (uint16_t)z << 4;
+
+  wiringPiSPIDataRW(0, writeBuf, 2);
+
+  //~ printf("X: %04d | Y: %04d | Z: %04d\n", x, y, (int)z);
+
+}
+
+int read_ads(int channel)   {
+
+  int16_t val_ads;
+
+  
+  //*****************************************
+
+  /* SETTING UP ADS1015 ADC */
+
+  // set config register and start conversion
+  // AIN0 and GND, 4.096v, 128s/s
+  // Refer to page 19 area of spec sheet
+  writeBuf_ads[0] = 1; // config register is 1
+  
+  writeBuf_ads[1] = 0b10000011;
+  if (channel == 0) { writeBuf_ads[1] |= 0b01000000; }
+  else if (channel == 1) {writeBuf_ads[1] |= 0b01010000; }
+  else if (channel == 2) {writeBuf_ads[1] |= 0b01100000; }
+  else if (channel == 3) {writeBuf_ads[1] |= 0b01110000; }
+  else {printf("Channel doesn't exist."); exit(-1); }
+  
+  // bit 15 flag bit for single shot
+  // Bits 14-12 input selection:
+  // 100 ANC0; 101 ANC1; 110 ANC2; 111 ANC3
+  // Bits 11-9 Amp gain.
+  // Bit 8 Operational mode of the ADS1115.
+  // 0 : Continuous conversion mode
+  // 1 : Power-down single-shot mode (default)
+
+  writeBuf_ads[2] = 0b11100101; // bits 7-0  0x85
+  // Bits 7-5 data rate default to 100 for 128SPS
+  // Bits 4-0  comparator functions see spec sheet.
+
+  /* DONE SETTING UP ADS1015 ADC */
+  
+  //*****************************************
+  
+  //*****************************************
+  
+  
+  if (write(fd_ads, writeBuf_ads, 3) != 3) {
+    perror("Write to register 1");
+    exit (1);
+  }
+ 
+ 
+  // set pointer to 0
+  readBuf_ads[0] = 0;
+  if (write(fd_ads, readBuf_ads, 1) != 1) {
+    perror("Write register select");
+    exit(-1);
+  }
+
+    
+  // read conversion register
+  if (read(fd_ads, readBuf_ads, 2) != 2) {
+    perror("Read conversion");
+    exit(-1);
+  }
+
+  // could also multiply by 256 then add readBuf[1]
+  val_ads = readBuf_ads[0] << 8 | readBuf_ads[1];
+  val_ads = val_ads >> 4;
+  
+  return val_ads;
+} 
+
+
+int main(void) {
+  connect_ads();
+  XInitThreads();
+  dsp=XOpenDisplay(NULL);
+  if (!dsp) {return 1;}
+  
+  wiringPiSetup ();
+  wiringPiSPISetup(0, 16000000); 
+  piHiPri(99);
+  
+  createLookup();
+  
+  wiringPiISR (0, INT_EDGE_FALLING, &myInterrupt0);
+  
+  while (1) {  }
+  //~ disconnect_ads();
+  
+  return 0;
+}
+
+
+

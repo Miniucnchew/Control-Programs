@@ -87,19 +87,17 @@ void myInterrupt0 (void) {
 int main (void)
 {
   
-  createLookup();
-  
-  
-  
   XInitThreads();
   dsp=XOpenDisplay(NULL);
   if (!dsp) {return 1;}
   
   wiringPiSetup ();
   wiringPiSPISetup(0, 16000000);
-  wiringPiISR (0, INT_EDGE_FALLING, &myInterrupt0);
-  
   piHiPri(99);
+  
+  createLookup();
+
+  wiringPiISR (0, INT_EDGE_FALLING, &myInterrupt0);
   
   while (1) {  }
   return 0 ;

@@ -74,9 +74,6 @@ int main() {
   }
 
   sleep(1);
-
-  printf("ASD1115 Demo will take five readings.\n");
-
  
   // set pointer to 0
   readBuf[0] = 0;
