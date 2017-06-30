@@ -18,7 +18,12 @@
 Display *dsp;
 unsigned char writeBuf[2];
 XEvent event;
-int x, y;
+int x, y, x_pred, y_pred;
+double alpha = 0.05;
+int y_prev = 0;
+int x_prev = 0;
+int vx = 0;
+int vy = 0;
 int i=0;
 volatile int z;
 int lookup[1600][1200];
@@ -33,7 +38,7 @@ void createLookup (void) {
   for (x = 0; x < 1600; x++) {
     for (y = 0; y < 1200; y++) {
       
-      if (x < 700 || x > 900) {lookup[x][y] = 100;}
+       if (x % 100 > 10) {lookup[x][y] = 100;}
       else {lookup[x][y] = 200;}
       
       //~ lookup[x][y] = 100 + 20.0*sin(M_PI*2*(50*x/1600.0+y/1200.0));
@@ -46,7 +51,7 @@ void createLookup (void) {
       //~ else { fprintf(fp, "%d, ", z[x][y]); }
       //~ 
       //~ if (x == 1599) { fprintf( fp, "}") }
-      
+        
     }
   }
   printf("Finished with lookup table. Moving on to main program...\n\n\n");
@@ -66,17 +71,22 @@ void myInterrupt0 (void) {
   x = event.xbutton.x;
   y = event.xbutton.y;
   
-  z = (int)lookup[x][y];
+  vx = x - x_prev;
+  vy = y - y_prev;
+  
+  x_pred = x + vx;
+  if (x_pred > 1599) {x_pred = 1599;}
+  y_pred = y + vy;
+  if (y_pred > 1199) {y_pred = 1199;}
+  
+  z = (int)lookup[x][y] + (int)(alpha * lookup[x_pred][y_pred]);
 
+  printf("vx: %04d | vy: %04d | x_pred: %04d | y_pred: %04d | z: %04d\n",
+    vx, vy, x_pred, y_pred, z);
 
-  // The following two lines of code add a square wave into the signal
-  //~ if (i == 0) {z += 50; i=1;}
-  //~ else if (i == 1) {z -= 50; i=0;}    
+  x_prev = x;
+  y_prev = y;
 
-
-  //~ if (i == 10) { i = 0; }
-  //~ z += i;
-  //~ i++;
 
   writeBuf[0] = ((uint16_t)z >> 4) | 0b00110000;
   writeBuf[1] = (uint16_t)z << 4;
@@ -107,3 +117,4 @@ int main (void)
   while (1) {  }
   return 0 ;
 }
+
