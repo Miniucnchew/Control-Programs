@@ -1,8 +1,3 @@
-
-#include <X11/X.h>
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <X11/Xos.h>
 #include <stdio.h>
 #include <sys/types.h> // open
 #include <sys/stat.h>  // open
@@ -18,13 +13,11 @@
 #include <wiringPi.h>
 #include <wiringPiSPI.h>
 
-Display *dsp;
 unsigned char writeBuf[2];
-XEvent event;
 int x, y;
 int i=0;
-volatile int z;
-int lookup[1600][1200];
+volatile int z, z_prev;
+int lookup[1800];
 
 int fd_ads;
 int ads_address = 0x48;
@@ -34,35 +27,21 @@ float myfloat_ads;
 
 const float VPS = 4.096 / 2048.0; // volts per step for ads
 
-int analog_val_0, analog_val_1, analog_val_2, analog_val_3;
+int analog_val[4];
+int analog_val_prev[4];
+
+
 
 void createLookup (void) {
-  //~ FILE *fp;
-  
-  //~ fp = fopen("lookup_table.txt", "w+");
-  //~ fprintf(fp, "static const int lookup[1600][1200] = {");
-  
-  
-  for (x = 0; x < 1600; x++) {
-    for (y = 0; y < 1200; y++) {
-      
-      lookup[x][y] = 100 + 20.0*sin(M_PI*2*(50*x/1600.0+y/1200.0));
-      //~ if (lookup[x][y] < 100) {lookup[x][y] = 100;}
-      //~ else if (lookup[x][y] > 175) {lookup[x][y] = 175;}
-      //~ if (y == 0) { fprintf(fp, "{ %d, ", z[x][y]); }
-      //~ else if (y == 1199) {fprintf(fp, "%d}\n", z[x][y]); }
-      //~ else { fprintf(fp, "%d, ", z[x][y]); }
-      //~ 
-      //~ if (x == 1599) { fprintf( fp, "}") }
-      
-    }
+  for (x = 0; x < 1800; x++) {
+    //~ lookup[x] = 120 + 100.0*sin(M_PI*2*(20*x/1800.0));
+    lookup[x] = (int)(155+100*x/1800.0);
   }
-  //~ printf("Finished with lookup table. Moving on to main program...\n\n\n");
-  //~ fclose(fp);
 }
 
+
+
 void connect_ads(void) {
-  /* CONNECTING TO DEVICES */
 
   // open ADC device on /dev/i2c-1 the default on Raspberry Pi B
   if ((fd_ads = open("/dev/i2c-1", O_RDWR)) < 0) {
@@ -76,10 +55,9 @@ void connect_ads(void) {
     exit (1);
   }
 
-  /* DONE CONNECTING TO DEVICES */
-  
-  //*****************************************
 }
+
+
 
 void disconnect_ads(void) {
   // power down ADS1115
@@ -95,48 +73,48 @@ void disconnect_ads(void) {
   close(fd_ads);
 }
 
+
+
 void myInterrupt0 (void) { 
-
-
-  /* get info about current pointer position */
-  XQueryPointer(dsp,  RootWindow(dsp, DefaultScreen(dsp)),
-  &event.xbutton.root, &event.xbutton.window,
-  &event.xbutton.x_root, &event.xbutton.y_root,
-  &event.xbutton.x, &event.xbutton.y,
-  &event.xbutton.state);
+/*
+  analog_val[0] = Position (0-1750) (Baseline~=120->130)
+  analog_val[1] = Force (0-1400) (tare to change baseline)
+  analog_val[2] = Distance Sensor (250-900) (Baseline~=530)
+  analog_val[3] = read_ads(3); // Ground
+*/
   
-  x = event.xbutton.x;
-  y = event.xbutton.y;
-
-  analog_val_0 = read_ads(0);
-  analog_val_1 = read_ads(1);
-  analog_val_2 = read_ads(2);
-  //~ analog_val_3 = read_ads(3);
+  analog_val[1] = read_ads(1);
+  analog_val[2] = read_ads(2);
+  
+  if (analog_val[1] > 100) {
+    analog_val[0] = read_ads(0); // Position (0-1750) (Baseline~=120->130)
+    z = (int)lookup[analog_val[0]];//-(int)(analog_val_1/6);
+    printf("Z: %03d | ", z);
+    z -= (1-analog_val[1]/1400)*155;
+    printf("Z: %03d | Calc: %03d\n", z, (int)(1-analog_val[1]/1400)*155);
     
-  //~ printf("Pot Pos: %04d | Pot Force: %04d | Dist: %04d\n", analog_val_0, 
-  //~ analog_val_1, analog_val_2);
-  printf("%04d\n", analog_val_0);
+    z_prev = z;
+  } else {
+    z = z_prev;
+    analog_val[0] = analog_val_prev[0];
+  }
   
-  z = (int)lookup[x][y];
-
-
-  // The following two lines of code add a square wave into the signal
-  //~ if (i == 0) {z += 50; i=1;}
-  //~ else if (i == 1) {z -= 50; i=0;}    
-
-
-  //~ if (i == 10) { i = 0; }
-  //~ z += i;
-  //~ i++;
-
+  
+  
   writeBuf[0] = ((uint16_t)z >> 4) | 0b00110000;
   writeBuf[1] = (uint16_t)z << 4;
 
   wiringPiSPIDataRW(0, writeBuf, 2);
-
+  
+  analog_val_prev[0] = analog_val[0];
+  //~ analog_val_prev[1] = analog_val[1];
+  
   //~ printf("X: %04d | Y: %04d | Z: %04d\n", x, y, (int)z);
-
+  printf("Pot Pos: %04d | Pot Force: %04d | Dist: %04d | Z: %03d\n", analog_val[0], 
+  analog_val[1], analog_val[2], z);
 }
+
+
 
 int read_ads(int channel)   {
 
@@ -206,11 +184,9 @@ int read_ads(int channel)   {
 } 
 
 
+
 int main(void) {
   connect_ads();
-  XInitThreads();
-  dsp=XOpenDisplay(NULL);
-  if (!dsp) {return 1;}
   
   wiringPiSetup ();
   wiringPiSPISetup(0, 16000000); 
@@ -221,7 +197,7 @@ int main(void) {
   wiringPiISR (0, INT_EDGE_FALLING, &myInterrupt0);
   
   while (1) {  }
-  //~ disconnect_ads();
+  disconnect_ads();
   
   return 0;
 }
