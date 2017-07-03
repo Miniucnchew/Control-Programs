@@ -34,8 +34,8 @@ int analog_val_prev[4];
 
 void createLookup (void) {
   for (x = 0; x < 1800; x++) {
-    //~ lookup[x] = 120 + 100.0*sin(M_PI*2*(20*x/1800.0));
-    lookup[x] = (int)(155+100*x/1800.0);
+    lookup[x] = 50.0*(sin(M_PI*2*(50*x/1800.0))+1);
+    //~ lookup[x] = (int)(155+100*x/1800.0);
   }
 }
 
@@ -88,10 +88,8 @@ void myInterrupt0 (void) {
   
   if (analog_val[1] > 100) {
     analog_val[0] = read_ads(0); // Position (0-1750) (Baseline~=120->130)
-    z = (int)lookup[analog_val[0]];//-(int)(analog_val_1/6);
-    printf("Z: %03d | ", z);
-    z -= (1-analog_val[1]/1400)*155;
-    printf("Z: %03d | Calc: %03d\n", z, (int)(1-analog_val[1]/1400)*155);
+    z = (int)lookup[analog_val[0]];
+    z += (1-analog_val[1]/1400.0)*155; 
     
     z_prev = z;
   } else {
