@@ -88,7 +88,7 @@ void myInterrupt0 (void) {
   
   if (analog_val[1] > 100) {
     analog_val[0] = read_ads(0); // Position (0-1750) (Baseline~=120->130)
-    z = (int)lookup[analog_val[0]];
+    z = lookup[analog_val[0]];
     z += (1-analog_val[1]/1400.0)*155; 
     
     z_prev = z;

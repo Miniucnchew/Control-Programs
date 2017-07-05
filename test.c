@@ -15,6 +15,7 @@
 
 unsigned char writeBuf[2];
 int x, y;
+int k=0;
 int i=0;
 volatile int z, z_prev;
 int lookup[1800];
@@ -34,16 +35,7 @@ int analog_val_prev[4];
 
 void createLookup (void) {
   for (x = 0; x < 1800; x++) {
-    
-    // Sinusoidal output
-    lookup[x] = 50.0*(sin(M_PI*2*(30*x/1800.0))+1);
-    
-    // Square-like 
-    //~ if (x % 100 > 30) {lookup[x] = 0;}
-    //~ else {lookup[x] = 100;}
-    
-    // Linear. Useful for debugging
-    //~ lookup[x] = (int)(100*x/1800.0);
+    lookup[x] = (100*x/1800.0);
   }
 }
 
@@ -92,7 +84,31 @@ void myInterrupt0 (void) {
 */
   
   analog_val[1] = read_ads(1);
-  analog_val[2] = read_ads(2);
+  
+  
+  
+  // Computer sweep 
+  //~ if (k < 256) {
+    //~ z = k; 
+    //~ k++;
+  //~ }
+  //~ else if (k == 256) {z = 0; k++;}
+  //~ else {
+    //~ disconnect_ads();
+    //~ exit(0);
+  //~ }
+  
+  
+  // Human Sweep w/o force feedback
+  //~ if (analog_val[1] > 100) {
+    //~ analog_val[0] = read_ads(0);
+    //~ z = lookup[analog_val[0]];
+    //~ k++;
+  //~ }
+  //~ 
+  //~ if (z >= 250) {disconnect_ads(); exit(0);}
+  
+  
   
   if (analog_val[1] > 100) {
     analog_val[0] = read_ads(0); // Position (0-1750) (Baseline~=120->130)
@@ -105,7 +121,9 @@ void myInterrupt0 (void) {
     analog_val[0] = analog_val_prev[0];
   }
   
+  k++;
   
+  if (k > 1000) {disconnect_ads(); exit(0);}
   
   writeBuf[0] = ((uint16_t)z >> 4) | 0b00110000;
   writeBuf[1] = (uint16_t)z << 4;
@@ -114,6 +132,9 @@ void myInterrupt0 (void) {
   
   analog_val_prev[0] = analog_val[0];
   //~ analog_val_prev[1] = analog_val[1];
+  
+  
+  analog_val[2] = read_ads(2);
   
   //~ printf("X: %04d | Y: %04d | Z: %04d\n", x, y, (int)z);
   printf("Pot Pos: %04d | Pot Force: %04d | Dist: %04d | Z: %03d\n", analog_val[0], 
@@ -207,6 +228,7 @@ int main(void) {
   
   return 0;
 }
+
 
 
 
