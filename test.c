@@ -15,7 +15,7 @@
 
 unsigned char writeBuf[2];
 int x, y;
-int k=0;
+int k=100;
 int i=0;
 volatile int z, z_prev;
 int lookup[1800];
@@ -35,7 +35,8 @@ int analog_val_prev[4];
 
 void createLookup (void) {
   for (x = 0; x < 1800; x++) {
-    lookup[x] = (100*x/1800.0);
+    //~ lookup[x] = 100+(155*x/1800.0); // Table for nfb sweep 
+    lookup[x] = (100*x/1800.0); // Table for fb sweep
   }
 }
 
@@ -92,7 +93,7 @@ void myInterrupt0 (void) {
     //~ z = k; 
     //~ k++;
   //~ }
-  //~ else if (k == 256) {z = 0; k++;}
+  //~ else if (k == 256) {z = 100; k++;}
   //~ else {
     //~ disconnect_ads();
     //~ exit(0);
@@ -106,10 +107,10 @@ void myInterrupt0 (void) {
     //~ k++;
   //~ }
   //~ 
-  //~ if (z >= 250) {disconnect_ads(); exit(0);}
+  //~ if (z >= 245) {disconnect_ads(); exit(0);}
   
   
-  
+  // Human Sweep w/ force feedback
   if (analog_val[1] > 100) {
     analog_val[0] = read_ads(0); // Position (0-1750) (Baseline~=120->130)
     z = (int)lookup[analog_val[0]];
@@ -122,8 +123,8 @@ void myInterrupt0 (void) {
   }
   
   k++;
-  
-  if (k > 1000) {disconnect_ads(); exit(0);}
+  //~ 
+  if (k > 500) {disconnect_ads(); exit(0);}
   
   writeBuf[0] = ((uint16_t)z >> 4) | 0b00110000;
   writeBuf[1] = (uint16_t)z << 4;
@@ -217,7 +218,7 @@ int main(void) {
   
   wiringPiSetup ();
   wiringPiSPISetup(0, 16000000); 
-  piHiPri(99);
+  //~ piHiPri(99);
   
   createLookup();
   

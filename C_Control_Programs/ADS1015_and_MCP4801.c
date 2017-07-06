@@ -34,8 +34,8 @@ int analog_val_prev[4];
 
 void createLookup (void) {
   for (x = 0; x < 1800; x++) {
-    lookup[x] = 50.0*(sin(M_PI*2*(50*x/1800.0))+1);
-    //~ lookup[x] = (int)(155+100*x/1800.0);
+    //~ lookup[x] = 50.0*(sin(M_PI*2*(50*x/1800.0))+1);
+    lookup[x] = (int)(100*x/1800.0);
   }
 }
 
