@@ -44,7 +44,7 @@ void myInterrupt0 (void) {
   //~ z = ((sin(event.xbutton.x) + sin(event.xbutton.y))+2)*50;
 
 
-  //~ z = event.xbutton.x/8;
+  z = event.xbutton.x/8;
 
 
   // The following two lines of code add a square wave into the signal
@@ -68,7 +68,7 @@ void myInterrupt0 (void) {
 
   wiringPiSPIDataRW(0, writeBuf, 2);
 
-  //~ printf("Z: %04ld | Moving Avg: %04d | Process Time: %d\n", (int)z, (int)ma, process_time);
+  printf("Z: %04ld | Moving Avg: %04d | Process Time: %d\n", (int)z, (int)ma, process_time);
 
    }
 
@@ -90,7 +90,7 @@ int main (void)
   wiringPiSPISetup(0, 16000000);
   wiringPiISR (0, INT_EDGE_FALLING, &myInterrupt0);
   
-  piHiPri(99);
+  //~ piHiPri(99);
   
   while (1) {
     //~ t = clock();
