@@ -25,8 +25,8 @@ void createLookup (void) {
 void myInterrupt0 (void) {    
   
   //~ if (i >= 20) {i = 0;}
-  if (i == 100) {i = 150;}
-  else {i = 100;}
+  if (i == 0) {i = 255;}
+  else {i = 0;}
   
   z = i;
   //~ z = lookup[i];
