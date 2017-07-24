@@ -1,0 +1,801 @@
+    1  ifconfig
+    2  raspi-config
+    3  sudo raspi-config
+    4  sudo shutdown now
+    5  ifconfig
+    6  exit
+    7  sudo nano /etc/ssh/sshd_config
+    8  exit
+    9  mk p
+   10  mkfile
+   11  sudo nano /boot/ssh
+   12  ls /boot
+   13  sudo nano /boot/ssh
+   14  ls /boot
+   15  ifconfig
+   16  dpkg =l | grep ssh
+   17  dpkg -l | grep ssh
+   18  sudo netstat -anp | grep sshd
+   19  sudo service openssh start
+   20  man openssh
+   21  man service ssh
+   22  service --status-all
+   23  sudo service ssh start
+   24  service --status-all
+   25  sudo apt-get install git build-essential python-dev
+   26  sudo pip install adafruit-mcp4725
+   27  man pip3
+   28  sudo pip3 install adafruit-mcp4725
+   29  sudo pip3 install ipython
+   30  ipython
+   31  exit
+   32  sudo apt-get install -y python-smbus i2c-tools
+   33  sudo i2cdetect -y 1
+   34  sudo i2cdetect -y 0
+   35  sudo i2cdetect -y 2
+   36  sudo i2cdetect -y 
+   37  sudo i2cdetect
+   38  sudo i2cdetect -y 1
+   39  sudo raspi-config
+   40  sudo i2cdetect -y 1
+   41  sudo nano /etc/modprobe.d/i2c.conf
+   42  ls /etc
+   43  ls /etc/modprobe.d
+   44  modprobe
+   45  modrobe -h
+   46  modprobe -h
+   47  sudo nano /etc/modprobe.d/i2c.conf
+   48  menuconfig
+   49  module-parameter
+   50  modprobe i2c_bcm2708 baudrate=400000
+   51  sudo bash -c "echo options i2c_bcm2708 baudrate=350000 > /etc/modprobe.d/i2c.conf"
+   52  sudo modprobe -r i2c_bcm2708 && sudo modprobe i2c_bcm2708 baudrate=2000000
+   53  ipython
+   54  sudo shutdown -r now
+   55  cat /etc/modprobe.d/i2c.conf 
+   56  sudo nano /etc/modprobe.d/i2c.conf 
+   57  sudo pigpiod
+   58  sudo nano /boot/config.txt
+   59  sudo modprobe i2c_bcm2708 baudrate=3400000
+   60  sudo modprobe - r i2c_bcm2708 
+   61  sudo modprobe -r i2c_bcm2708
+   62  sudo nano /etc/modprobe.d/i2c.conf 
+   63  sudo shutdown -r now
+   64  ipython
+   65  sudo i2cdetect
+   66  sudo i2cdetect -y 0
+   67  sudo i2cdetect -y 
+   68  sudo i2cdetect -y 1
+   69  ipython
+   70  sudo apt-get update
+   71  sudo pip3 install rpi.gpio
+   72  sudo apt-get install git build-essential python-dev
+   73  cd ~
+   74  git clone https://github.com/adafruit/Adafruit_Python_ADS1x15.git
+   75  cd Adafruit_Python_ADS1x15/
+   76  sudo python3 setup.py install
+   77  modprobe i2c_bcm2708 baudrate=3300
+   78  sudo nano /etc/modprobe.d/i2c.conf 
+   79  sudo rm /etc/modprobe.d/i2c.conf 
+   80  sudo shutdown -r now
+   81  cd Documents/Python_Control_Programs/
+   82  ls
+   83  python3 soft_pot_test_script.py 
+   84  sudo cat /sys/module/i2c_bcm2708/parameters/baudrate 
+   85  sudo nano /sys/module/i2c_bcm2708/parameters/baudrate 
+   86  sudo cat /sys/module/i2c_bcm2708/parameters/baudrate 
+   87  lsmod
+   88  ls
+   89  ls Documents/
+   90  mkdir Documents/Python_Control_Programs
+   91  cd Documents/Python_Control_Programs/
+   92  nano soft_pot.py
+   93  python3 soft_pot.py 
+   94  nano soft_pot.py
+   95  python3 soft_pot.py 
+   96  nano soft_pot.py
+   97  cd ../..
+   98  ls
+   99  ls Documents/
+  100  ls Downloads/
+  101  mv Downloads/*.py Documents/Python_Control_Programs/
+  102  ls Downloads/
+  103  cd Documents/Python_Control_Programs/
+  104  ls
+  105  nano soft_pot_control_test.py
+  106  rm soft_pot_control_test.py 
+  107  cp soft_pot_test_script.py soft_pot_control_test.py
+  108  ls
+  109  nano soft_pot_control_test.py
+  110  mv soft_pot_control_test.py soft_pot_control.py
+  111  ls
+  112  python3 soft_pot_control.py
+  113  nano soft_pot_control.py
+  114  python3 soft_pot_control.py
+  115  nano soft_pot_control.py
+  116  python3 soft_pot_control.py
+  117  nano soft_pot_control.py
+  118  pip3 install pyaudio
+  119  pip3 install pyPortAudio
+  120  ls
+  121  nano service_disable
+  122  pip3 install PortAudio
+  123  ls /dev
+  124  lsmod
+  125  lsusb
+  126  aplay -l
+  127  ls /dev/audio
+  128  ls /dev
+  129  ls /dev/snd
+  130  ls /dev/snd/controlC0 
+  131  cat /dev/snd/controlC0 
+  132  sudo apt-get install python-pyaudio
+  133  sudo pip3 install pyaudio
+  134  sudo pip3 install python-pyaudio
+  135  sudo apt-get install portaudio
+  136  sudo apt-get install python-portaudio
+  137  sudo apt-get install audacity
+  138  pip3 install pyaudio
+  139  ipython
+  140  cd Documents/Python_Control_Programs/
+  141  ls
+  142  nano soft_pot_V2.py
+  143  python3 soft_pot_V2.py 
+  144  nano soft_pot_V2.py
+  145  python3 soft_pot_V2.py 
+  146  nano soft_pot_V2.py
+  147  python3 soft_pot_V2.py 
+  148  nano soft_pot_V2.py
+  149  python3 soft_pot_V2.py 
+  150  nano soft_pot_V2.py
+  151  python3 soft_pot_V2.py 
+  152  nano soft_pot_V2.py
+  153  python3 soft_pot_V2.py 
+  154  nano soft_pot_V2.py
+  155  python3 soft_pot_V2.py 
+  156  nano soft_pot_V2.py
+  157  python3 soft_pot_V2.py 
+  158  nano soft_pot_V2.py
+  159  python3 soft_pot_V2.py 
+  160  nano soft_pot_V2.py
+  161  python3 soft_pot_V2.py 
+  162  nano soft_pot_V2.py
+  163  python3 soft_pot_V2.py 
+  164  nano soft_pot_V2.py
+  165  mv soft_pot_V2.py soft_pot_test_script.py
+  166  ls
+  167  nano mouse_4_4_2017.py 
+  168  ipython
+  169  man niceness
+  170  man priority
+  171  cd Documents/Python_Control_Programs/
+  172  ls
+  173  python3 soft_pot_control.py 
+  174  nano soft_pot_control.py 
+  175  python3 soft_pot_control.py 
+  176  ls
+  177  nano soft_pot.py
+  178  nano soft_pot_test_script.py 
+  179  ipython
+  180  sudo nano /etc/wpa_supplicant/wpa_supplicant.conf 
+  181  sudo apt-get install python-pyaudio
+  182  sudo apt-get install portaudio19-dev
+  183  sudo apt-get install libportaudio-dev
+  184  pip3 install pyaudio
+  185  sudo apt-get install python-pyaudio
+  186  sudo apt-get update
+  187  pip install pyglet
+  188  sudo pip3 install pyglet
+  189  pip3 install scipy
+  190  sudo pip3 install scipy
+  191  python3 -m pip install sounddevice
+  192  sudo python3 -m pip install sounddevice
+  193  sudo python3 -m pip install cffi
+  194  python3 -m pip install setuptools --user
+  195  sudo apt-get upgrade
+  196  sudo apt-get update
+  197  sudo nano /etc/wpa_supplicant/wpa_supplicant.conf 
+  198  sudo apt-get install arduino
+  199  sudo i2cdetect -y 0
+  200  sudo i2cdetect -y 1
+  201  cd /tmp
+  202  wget http://project-downloads.drogon.net/gertboard/avrdude_5.10-4_armhf.deb
+  203  sudo dpkg -i avrdude_5.10-4_armhf.deb 
+  204  wget http://project-downloads.drogon.net/gertboard/setup.sh
+  205  chmod +x setup.sh
+  206  sudo ./setup.sh
+  207  sudo shutdown -r now
+  208  sudo apt-get install minicom
+  209  minicom -s
+  210  ls
+  211  cd Documents/
+  212  ls
+  213  cd gertboard_sw/
+  214  ls
+  215  sudo cp minirc.ama0 /etc/minicom/
+  216  sudo minicom ama0
+  217  sudo arduino
+  218  bg
+  219  ls Documents/
+  220  ls Downloads/
+  221  sudo minicom ama0
+  222  sudo minicom -b 9600 -o -D/dev/ttyS0
+  223  sudo minicom ama0
+  224  sudo minicom -b 9600 -o -D /dev/ttyAMA0
+  225  ps | grep clloader
+  226  top
+  227  minicom -s
+  228  sudo minicom -b 9600 -o -D/dev/ttyS0
+  229  avrsetup
+  230  sudo avrsetup
+  231  sudo minicom -b 9600 -o -D/dev/ttyS0
+  232  sudo minicom -b 9600 -o -D /dev/ttyS0
+  233  sudo python3 Documents/GertBoard/GB_Python/dad.py 
+  234  sudo minicom -b 9600 -o -D /dev/ttyS0
+  235  minicom -
+  236  minicom -s
+  237  minicom /dev/ttyS0
+  238  sudo minicom -D /dev/ttyS0
+  239  sudo minicom
+  240  minicom -b 9600 -o -D /dev/ttyAMA0
+  241  sudo minicom -b 9600 -o -D /dev/ttyS0
+  242  minicom -b 9600 -o -D /dev/ttyAMA0
+  243  sudo arduino &
+  244  cd Documents/Python_Control_Programs/
+  245  ls
+  246  python3 soft_pot_control.py 
+  247  python
+  248  sudo shutdown now
+  249  cd Documents/Python_Control_Programs/
+  250  ls
+  251  python3 soft_pot_control.py 
+  252  idle3 soft_pot_control.py 
+  253  bg
+  254  python3 soft_pot_control.py 
+  255  ipython
+  256  cd Documents/
+  257  git clone https://github.com/adafruit/Adafruit_Python_ADS1x15.git
+  258  cd Adafruit_Python_ADS1x15/
+  259  ls
+  260  sudo python setup.py install
+  261  ls
+  262  cd Adafruit_ADS1x15
+  263  ls
+  264  cd ../examples/
+  265  ls
+  266  cd ..
+  267  ls
+  268  cd ..
+  269  ls
+  270  cd Adafruit_Python_ADS1x15/examples/
+  271  ls
+  272  pip3 install panda3d
+  273  pip3 install numpy
+  274  sudo pip3 install scipy
+  275  sudo apt-get update
+  276  sudo apt-get upgrade
+  277  sudo apt-get install python3-scipy
+  278  sudo apt-get install python3-matplotlib
+  279  sudo shutdown now
+  280  sudo apt-get update
+  281  sudo apt-get upgrade arduino
+  282  arduino --v
+  283  uname -a
+  284  cat /etc/os-release 
+  285  lsb_release -a
+  286  uname -r
+  287  uname -a
+  288  getconf LONG_BIT
+  289  cd Documents/arduino-1.8.2/
+  290  chmod +x install.sh 
+  291  ./install.sh
+  292  ./install.sh --novender
+  293  install.sh --novender
+  294  ./install.sh --novendor
+  295  install.sh --novendor
+  296  ./install.sh
+  297  sudo ./install.sh
+  298  cd Documents/arduino-1.8.2/
+  299  ls
+  300  sudo chmod +x install.sh 
+  301  sudo ./install.sh
+  302  cd ../Python_Control_Programs/
+  303  ls
+  304  python3 soft_pot_control.py po
+  305  ls
+  306  python3 SP_VirtualWall.py 
+  307  sudo shutdown now
+  308  gpio -v
+  309  cd Documents/C_Control_Programs/
+  310  ls
+  311  gcc -Wall -o blink Blink.c -lwiringPi
+  312  ls
+  313  ./blink
+  314  cd ../Python_Control_Programs/
+  315  ls
+  316  python3 soft_pot_control.py 
+  317  ls
+  318  python3 SP_continuous_test.py 
+  319  ls
+  320  cd ../C_Control_Programs/
+  321  ls
+  322  gcc -Wall -o play play.c -lwiringPi
+  323  ls
+  324  ./play
+  325  gcc -Wall -o play play.c -lwiringPi
+  326  ./play
+  327  gcc -Wall -o play play.c -lwiringPi
+  328  ./play
+  329  bg
+  330  top
+  331  renice -20 26110
+  332  sudo renice -20 26110
+  333  sudo kill 26110
+  334  ls
+  335  top
+  336  renice -20 839
+  337  sudo renice -20 839
+  338  top
+  339  i2cdetect -y 0
+  340  i2cdetect -y 1
+  341  gpio load i2c
+  342  gpio i2cdetect
+  343  ls
+  344  rm play.o
+  345  ls
+  346  gcc -Wall -o play play.c -lwiringPi -I/home/pi/Documents/C_Control_Programs/
+  347  ls -ar ../
+  348  ls -lR ..
+  349  ls -R ../ | grep Wire.h
+  350  ls -alR ../ | grep Wire.h
+  351  ls -alR ../ | grep Wire.h 'pwd'"/"*
+  352  ls -alR ../ | grep Wire.h "/"*
+  353  ls -alR ../ | grep "*/Wire.h"
+  354  ls -alR ../ | grep */Wire.h
+  355  ls -alR ../ | grep Wire.h
+  356  ls -R ../ | grep */Wire.h
+  357  ls -R ../arduino-1.8.2/
+  358  ls -R ../arduino-1.8.2/ | grep Wire.h
+  359  ls -R ../arduino-1.8.2/ | grep */Wire.h
+  360  ls -R ../arduino-1.8.2/ | grep *Wire.h
+  361  ls -R ../arduino-1.8.2/ | grep "*Wire.h"
+  362  man find
+  363  find ../arduino-1.8.2/ Wire.h
+  364  cd Documents/C_Control_Programs/
+  365  ls
+  366  gcc -Wall -o play play.c -lwiringPi -I/home/pi/Documents/C_Control_Programs/Wire -I/home/pi/Documents/C_Control_Programs/Adafruit_MCP4725
+  367  gcc -Wall -o play play.c -lwiringPi -I/home/pi/Documents/C_Control_Programs/MCP4725
+  368  i2cdetect -y 1
+  369  cd ../Python_Control_Programs/
+  370  ls
+  371  python3 SP_continuous_test.py 
+  372  ls
+  373  python3 soft_pot_control.py 
+  374  sudo shutdown now
+  375  top
+  376  sudo renice -99 -p 14084
+  377  ps 14084
+  378  ps -o 14084
+  379  ps -l 14084
+  380  exit
+  381  top
+  382  sudo renice -20 -p 3793
+  383  cd Documents/
+  384  ls
+  385  mkdir Control_Programs
+  386  mv C_Control_Programs/ Control_Programs/
+  387  ls
+  388  mv Python_Control_Programs/ Control_Programs/
+  389  cd Control_Programs/
+  390  ls
+  391  git remote add origin https://github.com/Miniucnchew/Control-Programs.git
+  392  git init
+  393  ls
+  394  ls -a
+  395  git commit -m "first commit"
+  396  git config --global user.email "ods7@pitt.edu"
+  397  git config --global user.name "Miniucnchew"
+  398  git commit -m "first commit"
+  399  git add
+  400  git add C_Control_Programs/
+  401  git add Python_Control_Programs/
+  402  git commit -m "first commit"
+  403  git remote add origin https://github.com/Miniucnchew/Control-Programs.git
+  404  git push -u origin master
+  405  tar zxvf bcm2835-1.52.tar.gz
+  406  wget http://www.airspayce.com/mikem/bcm2835/bcm2835-1.52.tar.gz
+  407  tar zxvf bcm2835-1.52.tar.gz
+  408  cd bcm2835-1.52/
+  409  ls
+  410  ls ..
+  411  ./configure
+  412  make
+  413  sudo make check
+  414  sudo make install
+  415  cd ..
+  416  ls
+  417  rm -r bcm2835-1.52
+  418  cd Documents/Control_Programs/
+  419  ls
+  420  git commit
+  421  git add -a
+  422  git add -A
+  423  git commit
+  424  git commit "Added some timing example files. Changed nanosecond control in sine.c and square.c to millisecond control."
+  425  git commit ?
+  426  git commit 
+  427  git add -A
+  428  git commit
+  429  sudo apt-get update
+  430  sudo apt-get upgrade
+  431  ls /dev/*spi*
+  432  iwconfig
+  433  gpio load spi
+  434  echo -e "\033[6n"
+  435  ;1R
+  436  echo -e "\033[6n"
+  437  xev
+  438  sudo apt-get install libx11-dev
+  439  top
+  440  sudo renice -20 -p 18537
+  441  top
+  442  sudo renice -20 -p 4757
+  443  ls
+  444  cd Documents/Control_Programs/
+  445  ls
+  446  git add -A
+  447  git commit
+  448  top
+  449  sudo renice -20 -p 20506
+  450  cd Documents/Control_Programs/C_Control_Programs/
+  451  ls
+  452  gcc -o spi spi.cpp
+  453  g++ -o spi spi.cpp
+  454  ./spi
+  455  g++ -o spi spi.cpp
+  456  ./spi
+  457  sudo raspi-config
+  458  ./spi
+  459  g++ -o spi spi.cpp
+  460  ./spi
+  461  g++ -o spi spi.cpp
+  462  ./spi
+  463  g++ -o spi spi.cpp
+  464  ./spi
+  465  g++ -o spi spi.cpp
+  466  ./spi
+  467  ls
+  468  g++ -o spi spi.cpp
+  469  ./spi
+  470  g++ -o spi spi.cpp
+  471  ./spi
+  472  g++ -o spi spi.cpp
+  473  ./spi
+  474  g++ -o spi spi.cpp
+  475  ./spi
+  476  gpio load spi
+  477  ls
+  478  mv spi_wiringPi.cpp spi_wiringPi.c
+  479  ls
+  480  mv spi_mouse_square.cpp spi_mouse_square.c
+  481  top
+  482  sudo renice -20 -p 9388
+  483  cd ..
+  484  ls
+  485  git add -A
+  486  git commit
+  487  sudo shutdown now
+  488  sudo raspi-config
+  489  cd Documents/Control_Programs/C_Control_Programs/
+  490  ls
+  491  clear
+  492  ls
+  493  ./spi_mouse_square 
+  494  ./spi
+  495  ./squuare
+  496  ./square
+  497  top
+  498  ./spi_mouse_square 
+  499  sudo raspi-config
+  500  ls
+  501  sudo raspi-config
+  502  clear
+  503  sudo setxkbmap -layout us
+  504  sudo raspi-config
+  505  sudo setxkbmap -layout us
+  506  sudo udevadm trigger --subsystem-match=input --action=change
+  507  sudo shutdown -r now
+  508  sudo raspi-config
+  509  clear
+  510  cd Documents/Control_Programs/C_Control_Programs/
+  511  ls
+  512  ./spi_mouse_square 
+  513  ./spi_mouse_square | less
+  514  ./spi
+  515  sudo ./spi
+  516  sudo ./square
+  517  sudo raspi-config
+  518  clear
+  519  cd Documents/Control_Programs/C_Control_Programs/
+  520  ls
+  521  sudo ./spi_mouse_square_isr
+  522  sudo chmod +x spi_mouse_square_isr
+  523  sudo ./spi_mouse_square_isr
+  524  sudo ./spi_mouse_square_isr --verbose
+  525  sudo raspi-config
+  526  top
+  527  cd Documents/Control_Programs/C_Control_Programs/
+  528  ls
+  529  sudo ./ spi_mouse_square_isr
+  530  sudo ./spi_mouse_square_isr
+  531  clear
+  532  git add -A
+  533  git commit
+  534  shutdown now
+  535  sudo apt-get update g++
+  536  sudo apt-get install g++
+  537  ./spi_isr_noise 
+  538  ls
+  539  cd C_Control_Programs/
+  540  ls
+  541  ./spi_isr_noise 
+  542  ./spi_isr_noise | less
+  543  clear
+  544  ./spi_isr_noise 1000 1000 9v 0.65 3 > rawNoise.js
+  545  ./spi_isr_noise 1000 1000 9v 0.65 3 | less
+  546  ./spi_isr_noise 1600 1200 9 0.65 3 | less
+  547  ./spi_isr_noise 1600 1200 9 0.65 3 > noise_lookup.txt
+  548  cd Documents/Control_Programs/C_Control_Programs/
+  549  ls
+  550  git add -A
+  551  git commit
+  552  cd Documents/Control_Programs/C_Control_Programs/
+  553  ls
+  554  git add -A
+  555  git commit
+  556  man gpio
+  557  man gpio mode
+  558  cd Documents/Control_Programs/C_Control_Programs/
+  559  ls
+  560  git add -A
+  561  git commit
+  562  cd Documents/Control_Programs/C_Control_Programs/
+  563  git push origin master
+  564  cd ../Python_Control_Programs/
+  565  ls
+  566  python3 SP_VirtualWall.py 
+  567  curl https://processing.org/download/install-arm.sh | sudo sh
+  568  cd Documents/Control_Programs/C_Control_Programs/
+  569  ls
+  570  sudo ./ADS1015_and_MCP4801 | feedgnuplot --stream 0
+  571  sudo ./ADS1015_and_MCP4801 | feedgnuplot --xlen 1000 --stream 0
+  572  seq 5 | awk '{print 2*$1, $1*$1}' |    feedgnuplot --lines --points --legend 0 "data 0" --title "Test plot" --y2 1
+  573  while true; do sleep 1; cat /proc/net/dev; done |    gawk '/wlan0/ {if(b) {print $2-b; fflush()} b=$2}' |    feedgnuplot --lines --stream --xlen 10 --ylabel 'Bytes/sec' --xlabel seconds
+  574  while true; do sleep 1; cat /proc/net/dev; done |    awk '/wlan0/ {if(b) {print $2-b; fflush()} b=$2}' |    feedgnuplot --lines --stream --xlen 10 --ylabel 'Bytes/sec' --xlabel seconds
+  575  while true; do acpi; sleep 15; done |    perl -nE 'BEGIN{ $| = 1; } /([0-9]*)%/; say join(" ", time(), $1);' |    feedgnuplot --stream --ymin 0 --ymax 100 --lines --domain --xlabel 'Time' --timefmt '%s' --ylabel "Battery charge (%)"
+  576  seq 5 | awk '{print 2*$1, $1*$1}' |
+  577  sudo ./ADS1015_and_MCP4801 | feedgnuplot --lines --points --legend 0 "data 0" --title "Test plot" --y2 1
+  578  sudo ./ADS1015_and_MCP4801 | feedgnuplot --lines --points --legend 0 "data 0" --title "Test plot" --y2 1 --stream 0
+  579  sudo ./ADS1015_and_MCP4801 | feedgnuplot --lines --points --legend 0 "data 0" --title "Test plot" --y2 1 --stream
+  580  sudo ./ADS1015_and_MCP4801 | feedgnuplot --lines --points --legend 0 "data 0" --title "Test plot" --y2 1 --stream .0001 --xlen 1000
+  581  sudo ./ADS1015_and_MCP4801 | feedgnuplot --lines --points --legend 0 "data 0" --title "Test plot" --y2 1 --stream .01 --xlen 1000 --yrange 0 4000
+  582  sudo ./ADS1015_and_MCP4801 | feedgnuplot --lines --points --legend 0 "data 0" --title "Test plot" --y2 1 --stream .01 --xlen 1000 --ymin 0 --ymax 4000
+  583  sudo ./ADS1015_and_MCP4801 | feedgnuplot --lines --points --legend 0 "data 0" --title "Test plot" --y2 1 --stream .01 --xlen 100 --ymin 0 --ymax 4000
+  584  cd Documents/Control_Programs/C_Control_Programs/
+  585  ls
+  586  git add *
+  587  git commit -m "Made a program that uses both the SPI DAC and the I2C ADC. It seems to be a bit slower than just the DAC alone (which makes sense). Thinking about how to add inertia to the program so that when the person isn't touching it, it keeps moving like it should. Probably gonna have to use a Kalman Filter with the velocity of the persons finger and the height of the platform as states."
+  588  git push origin master
+  589  gnuplot --help
+  590  sudo apt-get install gnuplot-x11
+  591  sudo apt-get install feedgnuplot
+  592  cd C_Control_Programs/
+  593  ls
+  594  sudo ./ADS1015_and_MCP4801 | feedgnuplot --stream
+  595  cd Documents/Control_Programs/C_Control_Programs/
+  596  ls
+  597  git add *
+  598  git commit -m "Trying to add inertia. Not working well yet."
+  599  git push origin master
+  600  ls
+  601  git add *
+  602  git commit -m "Really can't figure out what is wrong with the calculation on line 93 of ADS1015_and_MCP401.c. I'm gonna ask on stack overflow and see if they have any suggestions"
+  603  git add *
+  604  git commit -m "Figured out the last problem. It was using integer division instead of float division. The ADS1015_and... file works well. It is pretty fast. Next goal is to eliminate friction from the soft potentiometer. Maybe some glycerin solution?" 
+  605  git push origin master
+  606  cd ..
+  607  ls
+  608  ./test > dist_test_computer.txt 
+  609  ./test > dist_test_human.txt 
+  610  ./test > dist_test_human_Feedback.txt 
+  611  git add -AR
+  612  git add -A
+  613  git commit -m "Did test of the software feedback mechanism that I implemented. Will see if it is actually working."
+  614  git push origin master
+  615  ls
+  616  rm noise_lookup.txt 
+  617  ls
+  618  rm -r lodepng
+  619  ls
+  620  ./test > comp_test.txt
+  621  ./test > comp_test2.txt
+  622  ./test > comp_test3.txt
+  623  ./test > humNFB_test.txt
+  624  res
+  625  top
+  626  ./test > humNFB_test.txt
+  627  ./test > Test\ Data/humNFB_test.txt
+  628  ./test > Test\ Data/Human\ NFB/humNFB_test.txt
+  629  ./test > Test\ Data/Human\ NFB/humNFB_test2.txt
+  630  ./test > Test\ Data/Human\ NFB/humNFB_test3.txt
+  631  ./test > Test\ Data/Human\ FB/humFB_test1.txt
+  632  ./test > Test\ Data/Human\ FB/humFB_test2.txt
+  633  ./test > Test\ Data/Human\ FB/humFB_test3.txt
+  634  git add *
+  635  git commit -m "Doing some more data collection on my force feedback algorithm. Added the Test Data folder to manage test data."
+  636  git push origin master
+  637  ls /dev
+  638  ls -la /sys/bus/spi/devices/
+  639  modprobe spi-config
+  640  gpio load spi
+  641  top
+  642  ls
+  643  wget https://raw.githubusercontent.com/raspberrypi/linux/rpi-3.10.y/Documentation/spi/spidev_test.c
+  644  gcc -o spidev_test spidev_test.c 
+  645  ./spidev_test -D /dev/spidev0.0
+  646  sudo ./spidev_test -D /dev/spidev0.0
+  647  sudo raspi-config
+  648  sudo ./spidev_test -D /dev/spidev0.0
+  649  reboot
+  650  ls -l /dev/spidev
+  651  ls -l /dev
+  652  ls -l /dev | grep spidev* | less
+  653  ls -l /dev | grep spidev* 
+  654  ls /dev
+  655  ls /dev/spidev0.0
+  656  ls -a /dev/spidev0.0
+  657  ls -l /dev/spidev0.0
+  658  ls
+  659  nano spidev_test.c 
+  660  sudo ./spidev_test -D /dev/spidev0.0
+  661  sudo nano /etc/modprobe.d/raspi-blacklist.conf 
+  662  sudo ./spidev_test -D /dev/spidev0.1
+  663  sudo ./spidev_test -D /dev/spidev0.0
+  664  sudo ./spidev_test -D /dev/spidev0.1
+  665  gpio load spi
+  666  ls
+  667  sudo ./spidev_test 
+  668  sudo ./spidev_test -D /dev/spidev0.1
+  669  i2cdetect -y 1
+  670  sudo nano /boot/config.txt 
+  671  sudo nano /etc/modules
+  672  sudo reboot
+  673  sudo ./spidev_test -D /dev/spidev0.0
+  674  sudo ./spidev_test -D /dev/spidev0.1
+  675  ls /bin
+  676  ls 
+  677  ls Downloads/
+  678  ls Documents/
+  679  ls Documents/Control_Programs/
+  680  gpio
+  681  gpio readall
+  682  man gpio
+  683  gpio
+  684  gpio -h
+  685  gpio -v
+  686  ls
+  687  cd ..
+  688  ls
+  689  cd pi
+  690  ls
+  691  cd Downloads/
+  692  ls
+  693  git clone git://git.drogon.net/wiringPi
+  694  ls
+  695  cd wiringPi/
+  696  git pull origin
+  697  ls
+  698  cd gpio
+  699  ls
+  700  ./pintest
+  701  gpio
+  702  gpio load spi
+  703  gpio write 13 1
+  704  gpio write 13 0
+  705  gpio write 13 1
+  706  gpio readall
+  707  gpio mode 13 out
+  708  gpio write 13 1
+  709  gpio mode 13 out
+  710  gpio readall
+  711  gpio mode 10 out
+  712  gpio write 10 1
+  713  gpio readall
+  714  gpio mode 12 out
+  715  gpio write 12 1
+  716  gpio readall
+  717  gpio
+  718  gpio reset
+  719  gpio mode 13 up
+  720  gpio write 13 0
+  721  gpio write 12 0
+  722  gpio write 12 1
+  723  gpio read 13
+  724  gpio write 13 1
+  725  gpio read 13
+  726  reboot
+  727  gpio
+  728  gpio readall
+  729  pigpiod
+  730  sudopigpiod
+  731  sudo pigpiod
+  732  sudo killall pigpiod
+  733  pigpiod
+  734  sudo pigpiod
+  735  sudo killall pigpiod
+  736  cat /var/run/pigpio.pid 
+  737  sudo kill -9 17217
+  738  cat /var/run/pigpio.pid 
+  739  sudo kill -9 3370
+  740  cat /var/run/pigpio.pid 
+  741  sudo kill -9 6683
+  742  cat /var/run/pigpio.pid 
+  743  sudo kill -9 24625
+  744  top
+  745  cat /var/run/pigpio.pid 
+  746  sudo renice -p -10 3939
+  747  sudo renice -10 -p 3939
+  748  ls
+  749  git add *
+  750  git add -A
+  751  git commit -m "Burnt out the MISO pin, had to switch from using wiringPi to using PIGPIO."
+  752  git push origin master
+  753  git push master origin
+  754  git push?
+  755  git --help
+  756  git help push
+  757  git push master origin
+  758  git push master
+  759  history
+  760  history | grep "git" | less
+  761  git push origin master
+  762  git help pull
+  763  git-merge
+  764  git merge
+  765  git pull 
+  766  git pull origin
+  767  git push origin master
+  768  cat /var/run/pigpio.pid 
+  769  sudo kill 7830
+  770  sudo kill -9 7830
+  771  cat /var/run/pigpio.pid 
+  772  cd /usr/lib
+  773  ls
+  774  tar -xzvf /home/Oliver/Downloads/TurboC-dev.tar.gz
+  775  cat /var/run/pigpio.pid 
+  776  sudo kill -9 23467
+  777  ls
+  778  cd ~/Documents/
+  779  ls
+  780  cd Control_Programs/
+  781  ls
+  782  git add -A
+  783  git commit -m "Changed some hardware, not sure if I changed any code so I'm commiting anyways."
+  784  git push origin master
+  785  sudo apt-get install gsl
+  786  sudo apt-get install libgsl
+  787  sudo apt-get install libgsl0ldbl
+  788  sudo apt-get install libgsl0-dev
+  789  git add -A
+  790  git commit -m "See previous message."
+  791  git push origin master
+  792  iwconfig
+  793  ifconfig
+  794  his
+  795  history
+  796  history | less
+  797  cd Documents/
+  798  ls
+  799  cd Control_Programs/
+  800  ls
+  801  history > rpi_log.txt

@@ -31,7 +31,11 @@ int i=0;
 void createLookup (void) {
   for (x = 0; x < 1600; x++) {
     for (y = 0; y < 1200; y++) {
-      lookup[x][y] = 50.0*(sin(M_PI*2*(50*x/1800.0))+1);
+      lookup[x][y] = 255*(sin(M_PI*2*(50*x/1800.0))+1);
+      
+      //~ if lookup[x][y] 
+      
+      
       //~ lookup[x] = (int)(100*x/1800.0);
     }
   }

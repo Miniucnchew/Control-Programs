@@ -26,6 +26,7 @@ uint8_t readBuf_ads[2];
 float myfloat_ads;
 
 const float VPS = 4.096 / 2048.0; // volts per step for ads
+const float mmPOU = 0.0029; // mm per optical units
 
 int analog_val[4];
 int analog_val_prev[4];
@@ -35,6 +36,8 @@ int analog_val_prev[4];
 void createLookup (void) {
   for (x = 0; x < 1800; x++) {
     lookup[x] = 50.0*(sin(M_PI*2*(50*x/1800.0))+1);
+    
+    lookup[x] += rand() % 10; 
     //~ lookup[x] = (int)(100*x/1800.0);
   }
 }
@@ -72,47 +75,6 @@ void disconnect_ads(void) {
 
   close(fd_ads);
 }
-
-
-
-void myInterrupt0 (void) { 
-/*
-  analog_val[0] = Position (0-1750) (Baseline~=120->130)
-  analog_val[1] = Force (0-1400) (tare to change baseline)
-  analog_val[2] = Distance Sensor (250-900) (Baseline~=530)
-  analog_val[3] = read_ads(3); // Ground
-*/
-  
-  analog_val[1] = read_ads(1);
-  analog_val[2] = read_ads(2);
-  
-  if (analog_val[1] > 100) {
-    analog_val[0] = read_ads(0); // Position (0-1750) (Baseline~=120->130)
-    z = lookup[analog_val[0]];
-    z += (1-analog_val[1]/1400.0)*155; 
-    
-    z_prev = z;
-  } else {
-    z = z_prev;
-    analog_val[0] = analog_val_prev[0];
-  }
-  
-  
-  
-  writeBuf[0] = ((uint16_t)z >> 4) | 0b00110000;
-  writeBuf[1] = (uint16_t)z << 4;
-
-  spiWrite(fd_mcp, (char *)writeBuf, 2);
-  
-  analog_val_prev[0] = analog_val[0];
-  //~ analog_val_prev[1] = analog_val[1];
-  
-  //~ printf("X: %04d | Y: %04d | Z: %04d\n", x, y, (int)z);
-  printf("Pot Pos: %04d | Pot Force: %04d | Dist: %04d | Z: %03d\n", analog_val[0], 
-  analog_val[1], analog_val[2], z);
-}
-
-
 
 int read_ads(int channel)   {
 
@@ -181,9 +143,48 @@ int read_ads(int channel)   {
   return val_ads;
 } 
 
+void myInterrupt0 (void) { 
+/*
+  analog_val[0] = Position (0-1750) (Baseline~=120->130)
+  analog_val[1] = Force (0-1400) (tare to change baseline)
+  analog_val[2] = Distance Sensor (250-900) (Baseline~=530)
+  analog_val[3] = read_ads(3); // Ground
+*/
+  
+  analog_val[1] = read_ads(1);
+  analog_val[2] = read_ads(2);
+  
+  if (analog_val[1] > 100) {
+    analog_val[0] = read_ads(0); // Position (0-1750) (Baseline~=120->130)
+    z = lookup[analog_val[0]];
+    z += (1-analog_val[1]/1400.0)*155; 
+    
+    z_prev = z;
+    
+  } else {
+    z = z_prev;
+    analog_val[0] = analog_val_prev[0];
+  }
+  
+  
+  
+  writeBuf[0] = ((uint16_t)z >> 4) | 0b00110000;
+  writeBuf[1] = (uint16_t)z << 4;
+
+  spiWrite(fd_mcp, (char *)writeBuf, 2);
+  
+  analog_val_prev[0] = analog_val[0];
+  //~ analog_val_prev[1] = analog_val[1];
+  
+  //~ printf("X: %04d | Y: %04d | Z: %04d\n", x, y, (int)z);
+  printf("Pot Pos: %04d | Pot Force: %04d | Dist: %04d = %1.4fmm | Z: %03d\n", analog_val[0], 
+  analog_val[1], analog_val[2], (analog_val[2]-803.0)*mmPOU, z);
+}
 
 
 int main(void) {
+  srand(time(NULL));
+  
   connect_ads();
   
   gpioInitialise();
