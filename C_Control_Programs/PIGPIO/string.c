@@ -31,7 +31,12 @@ const float mmPOU = 0.0029; // mm per optical units
 
 int analog_val[4];
 int analog_val_prev[4] = {0,0,0,0};
+int first_pos, last_pos, pos_diff;
+int first_pos_acquired = 0;
+int last_pos_acquired = 0;
+int pos_diff_prev;
 
+double cone_vel;
 int skip_cycles = 0;
 int count;
 int lookup_count = 0;
@@ -155,43 +160,63 @@ void myInterrupt0 (void) {
   analog_val[3] = read_ads(3); // Ground
 */
   
-  analog_val[0] = read_ads(0);
+  analog_val[1] = read_ads(1);
   analog_val[2] = read_ads(2);
   
-  if (abs(analog_val[0] - analog_val_prev[0]) > 50) {analog_val[0] = analog_val_prev[0];}
+  if (analog_val[1] > 100) {
+    analog_val[0] = read_ads(0); // Position (0-1750) (Baseline~=120->130)
+    analog_val_prev[0] = analog_val[0];
+    z_prev = z;
+    
+  } else {
+    z = z_prev;
+    analog_val[0] = analog_val_prev[0];
+  }  
+
   
-  double cone_vel = analog_val[2] - analog_val_prev[2];
-  //~ 
-  //~ skip_cycles = analog_val[0] / 100;
-//~ 
-  //~ if (count > skip_cycles) {
-    //~ 
-    //~ z = (127 - cone_vel - abs(analog_val[2] % 700)); // can also use - instead of %
-//~ 
-  //~ if (z > 255 || z < 0) {z = 127;}
-  //~ 
-  //~ count = 0;
-  //~ } else {z = z_prev;}
+  if (analog_val[1] > 100 && first_pos_acquired == 0) {
+    first_pos = analog_val[0];
+    first_pos_acquired = 1;
+  }
   
-  z = 127 + (cone_vel/8)*16; 
-  // Change the multiplier to change length of response. 16 is undamped, higher is unstable.
+  if (analog_val[1] < 100 && last_pos_acquired == 0 && first_pos_acquired == 1) {
+    last_pos = analog_val[0];
+    last_pos_acquired = 1;
+  }
+  
+  cone_vel = analog_val[2] - analog_val_prev[2];
+  
+    if (count == 0) {
+      z = analog_val[0]/8;
+    } else {
+      if (z >= 127) {z = 127 - abs(127 - z_prev) + count; count++; }
+      else {z = 127 + abs(127 - z_prev) - count; count++; }
+    }
+  
+  if (abs(z - 127) < 2) {
+    count = 0;
+    first_pos_acquired = 0;
+    last_pos_acquired = 0;
+  }
+    
+    
   
   
-  //~ gpioDelay(analog_val[0]/10000);
+  if (z > 255 || z < 0) {z = 127;}
+  
   writeBuf[0] = ((uint16_t)z >> 4) | 0b00110000;
   writeBuf[1] = (uint16_t)z << 4;
 
   spiWrite(fd_mcp, (char *)writeBuf, 2);
   
-  analog_val_prev[2] = analog_val[2];
+  
+  
+  
+  printf("Pot Pos: %04d | Dist: %04d | Z: %03d | first pos: %04d | last pos: %04d\n", analog_val[0], analog_val[2], z, first_pos, last_pos);
+  
   z_prev = z;
-  
-  analog_val_prev[0] = analog_val[0];
-  
-  printf("Pot Pos: %04d | Dist: %04d | Z: %03d | lookup count: %02d\n",
-  analog_val[0], analog_val[2], z, lookup_count);
-  
-  count++;
+  analog_val_prev[1] = analog_val[1];
+  analog_val_prev[2] = analog_val[2];
   
 }
 

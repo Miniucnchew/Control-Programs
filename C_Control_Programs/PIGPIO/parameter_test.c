@@ -17,8 +17,7 @@ unsigned char writeBuf[2];
 int x, y;
 int i=0;
 volatile int z, z_prev;
-int lookup[10];
-int lookup_size = sizeof(lookup)/sizeof(lookup[0]);
+int lookup[1800];
 
 int fd_ads;
 int ads_address = 0x48;
@@ -26,24 +25,42 @@ uint8_t writeBuf_ads[3];
 uint8_t readBuf_ads[2];
 float myfloat_ads;
 
-const float VPS = 4.096 / 2048.0; // volts per step for ads
 const float mmPOU = 0.0029; // mm per optical units
 
 int analog_val[4];
-int analog_val_prev[4] = {0,0,0,0};
+int analog_val_prev[4];
 
-int skip_cycles = 0;
-int count;
-int lookup_count = 0;
+int w_freq, w_form;
+float amp;
+int button_interrupt_called=0;
 
 
-void createLookup (void) {
-  for (x = 0; x < lookup_size; x++) {
-    lookup[x] = 125*(sin(M_PI*2*(x/(float)lookup_size))+1);
+void createLookup (int freq, int waveform, float amplitude) {
+  
+    if (waveform == 1) {
+      for (x = 0; x < 1800; x++) {
+        lookup[x] = amplitude*(sin(M_PI*2*(freq*x/1800.0))+1);
+      }
+    } else if (waveform == 2) {
+      int period = 1800/freq;
+      int p_count = 0;
+      for (x = 0; x < 1800; x++) {
+        if (x % period == 0 && x > 0) {p_count++;}
+        if (abs(period - (x - p_count*period)) > period/2) {lookup[x] = 0;}
+        else {lookup[x] = amplitude;}
+      }
+    } else if (waveform == 3) {
+      int period = 1800/freq;
+      int p_count = 0;
+      for (x = 0; x < 1800; x++) {
+        if (x % period == 0 && x > 0) {p_count++;}
+        lookup[x] = (x - p_count*period)*amplitude/period;
+      }
+    }
+    
     
     //~ lookup[x] += rand() % 10; 
     //~ lookup[x] = (int)(100*x/1800.0);
-  }
 }
 
 
@@ -154,63 +171,96 @@ void myInterrupt0 (void) {
   analog_val[2] = Distance Sensor (250-900) (Baseline~=530)
   analog_val[3] = read_ads(3); // Ground
 */
-  
-  analog_val[0] = read_ads(0);
-  analog_val[2] = read_ads(2);
-  
-  if (abs(analog_val[0] - analog_val_prev[0]) > 50) {analog_val[0] = analog_val_prev[0];}
-  
-  double cone_vel = analog_val[2] - analog_val_prev[2];
-  //~ 
-  //~ skip_cycles = analog_val[0] / 100;
-//~ 
-  //~ if (count > skip_cycles) {
-    //~ 
-    //~ z = (127 - cone_vel - abs(analog_val[2] % 700)); // can also use - instead of %
-//~ 
-  //~ if (z > 255 || z < 0) {z = 127;}
-  //~ 
-  //~ count = 0;
-  //~ } else {z = z_prev;}
-  
-  z = 127 + (cone_vel/8)*16; 
-  // Change the multiplier to change length of response. 16 is undamped, higher is unstable.
-  
-  
-  //~ gpioDelay(analog_val[0]/10000);
-  writeBuf[0] = ((uint16_t)z >> 4) | 0b00110000;
-  writeBuf[1] = (uint16_t)z << 4;
+  if (button_interrupt_called == 0) {
+    analog_val[1] = read_ads(1);
+    analog_val[2] = read_ads(2);
+    
+    if (analog_val[1] > 50) {
+      analog_val[0] = read_ads(0); // Position (0-1750) (Baseline~=120->130)
+      z = lookup[analog_val[0]];
+      //z += (1-analog_val[1]/1400.0)*155; 
+      
+      z_prev = z;
+      
+    } else {
+      z = z_prev;
+      analog_val[0] = analog_val_prev[0];
+    }
+    
+    //~ analog_val[0] = read_ads(0);
+    //~ z = lookup[analog_val[0]];
+    
+    writeBuf[0] = ((uint16_t)z >> 4) | 0b00110000;
+    writeBuf[1] = (uint16_t)z << 4;
 
-  spiWrite(fd_mcp, (char *)writeBuf, 2);
-  
-  analog_val_prev[2] = analog_val[2];
-  z_prev = z;
-  
-  analog_val_prev[0] = analog_val[0];
-  
-  printf("Pot Pos: %04d | Dist: %04d | Z: %03d | lookup count: %02d\n",
-  analog_val[0], analog_val[2], z, lookup_count);
-  
-  count++;
-  
+    spiWrite(fd_mcp, (char *)writeBuf, 2);
+    
+    analog_val_prev[0] = analog_val[0];
+    //~ analog_val_prev[1] = analog_val[1];
+    
+    //~ printf("X: %04d | Y: %04d | Z: %04d\n", x, y, (int)z);
+    printf("Pot Pos: %04d | Pot Force: %04d | Dist: %04d = %1.4fmm | Z: %03d\n", analog_val[0], 
+    analog_val[1], analog_val[2], (analog_val[2]-803.0)*mmPOU, z);
+    fflush(stdout);
+  }
 }
 
+void buttonInterrupt_1(void) {
+  
+  button_interrupt_called = 1;
+
+  printf("What waveform (1=sinusoid, 2=square, 3=sawtooth): ");
+  //~ fflush(stdout);
+  scanf("%d", &w_form);
+  
+  createLookup(w_freq, w_form, amp);
+  button_interrupt_called = 0;
+}
+
+void buttonInterrupt_2(void) {
+  button_interrupt_called = 1;
+  
+  printf("What should the fundamental frequency be: ");
+  scanf("%d", &w_freq); 
+  
+  createLookup(w_freq, w_form, amp);
+  button_interrupt_called = 0;
+}
+
+void buttonInterrupt_3(void) {
+  button_interrupt_called = 1;
+  
+  printf("What amplitude (0-255): ");
+  scanf("%f", &amp);
+  
+  createLookup(w_freq, w_form, amp);
+  button_interrupt_called = 0;
+}
 
 int main(void) {
-  
-  createLookup();
-  
   srand(time(NULL));
   
-  connect_ads();
+  connect_ads();    
   
   gpioInitialise();
   
   fd_mcp = spiOpen(0, 16000000, 0b0000000100000000000000);
+   
+  printf("What waveform (1=sinusoid, 2=square, 3=sawtooth): ");
+  scanf("%d", &w_form);
+  printf("What should the fundamental frequency be: ");
+  scanf("%d", &w_freq); 
+  printf("What amplitude (0-255): ");
+  scanf("%f", &amp);
   
-  createLookup();
+  gpioDelay(10);
   
-  gpioSetISRFunc(17, EITHER_EDGE, 0, &myInterrupt0);
+  createLookup(w_freq, w_form, amp);
+  
+  gpioSetISRFunc(17, EITHER_EDGE, 0, myInterrupt0);
+  gpioSetISRFunc(13, FALLING_EDGE, 0, buttonInterrupt_1);
+  gpioSetISRFunc(19, FALLING_EDGE, 0, buttonInterrupt_2);
+  gpioSetISRFunc(26, FALLING_EDGE, 0, buttonInterrupt_3);
   
   while (1) {  }
   disconnect_ads();

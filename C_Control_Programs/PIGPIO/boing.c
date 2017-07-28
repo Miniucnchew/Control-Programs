@@ -12,40 +12,22 @@
 #include <errno.h>
 #include <pigpio.h>
 
+unsigned char writeBuf_mcp[2];
+
+int analog_val[4], analog_val_prev[4];
+
+int z, z_prev;
+int i;
 int fd_mcp;
-unsigned char writeBuf[2];
-int x, y;
-int i=0;
-volatile int z, z_prev;
-int lookup[10];
-int lookup_size = sizeof(lookup)/sizeof(lookup[0]);
+double t_pause;
 
 int fd_ads;
-int ads_address = 0x48;
+int ads_address = 0x48; 
 uint8_t writeBuf_ads[3];
 uint8_t readBuf_ads[2];
-float myfloat_ads;
+int cone_dist;
 
-const float VPS = 4.096 / 2048.0; // volts per step for ads
 const float mmPOU = 0.0029; // mm per optical units
-
-int analog_val[4];
-int analog_val_prev[4] = {0,0,0,0};
-
-int skip_cycles = 0;
-int count;
-int lookup_count = 0;
-
-
-void createLookup (void) {
-  for (x = 0; x < lookup_size; x++) {
-    lookup[x] = 125*(sin(M_PI*2*(x/(float)lookup_size))+1);
-    
-    //~ lookup[x] += rand() % 10; 
-    //~ lookup[x] = (int)(100*x/1800.0);
-  }
-}
-
 
 
 void connect_ads(void) {
@@ -63,8 +45,6 @@ void connect_ads(void) {
   }
 
 }
-
-
 
 void disconnect_ads(void) {
   // power down ADS1115
@@ -147,80 +127,78 @@ int read_ads(int channel)   {
   return val_ads;
 } 
 
-void myInterrupt0 (void) { 
-/*
-  analog_val[0] = Position (0-1750) (Baseline~=120->130)
-  analog_val[1] = Force (0-1400) (tare to change baseline)
-  analog_val[2] = Distance Sensor (250-900) (Baseline~=530)
-  analog_val[3] = read_ads(3); // Ground
-*/
+void myInterrupt0(void) {
+  //~ printf("Z Value: ");
+  //~ scanf("%d", &z);
+
+  //~ printf("Z = %03d\n", z);
   
-  analog_val[0] = read_ads(0);
+  analog_val[1] = read_ads(1);
   analog_val[2] = read_ads(2);
   
-  if (abs(analog_val[0] - analog_val_prev[0]) > 50) {analog_val[0] = analog_val_prev[0];}
+  if (analog_val[1] > 100) {
+    analog_val[0] = read_ads(0); // Position (0-1750) (Baseline~=120->130)
+    analog_val_prev[0] = analog_val[0];
+    z_prev = z;
+    
+  } else {
+    z = z_prev;
+    analog_val[0] = analog_val_prev[0];
+  }  
   
-  double cone_vel = analog_val[2] - analog_val_prev[2];
+  
+  
+  
+  //~ analog_val[1] = read_ads(1);
   //~ 
-  //~ skip_cycles = analog_val[0] / 100;
-//~ 
-  //~ if (count > skip_cycles) {
+  //~ if (analog_val[1] > 100) {
     //~ 
-    //~ z = (127 - cone_vel - abs(analog_val[2] % 700)); // can also use - instead of %
-//~ 
-  //~ if (z > 255 || z < 0) {z = 127;}
-  //~ 
-  //~ count = 0;
-  //~ } else {z = z_prev;}
+    //~ z_prev = z;    
+    //~ analog_val_prev[0] = analog_val[0];    
+    //~ 
+    //~ analog_val[0] = read_ads(0); // Position (0-1750) (Baseline~=120->130)
+    //~ 
+  //~ } else {
+    z = z_prev;
+    //~ analog_val[0] = analog_val_prev[0];
+  //~ }  
   
-  z = 127 + (cone_vel/8)*16; 
-  // Change the multiplier to change length of response. 16 is undamped, higher is unstable.
+  z = analog_val[0]/8;
   
-  
-  //~ gpioDelay(analog_val[0]/10000);
-  writeBuf[0] = ((uint16_t)z >> 4) | 0b00110000;
-  writeBuf[1] = (uint16_t)z << 4;
+  for (i = 0; i < abs(z - 127); i++) {
 
-  spiWrite(fd_mcp, (char *)writeBuf, 2);
-  
-  analog_val_prev[2] = analog_val[2];
-  z_prev = z;
-  
-  analog_val_prev[0] = analog_val[0];
-  
-  printf("Pot Pos: %04d | Dist: %04d | Z: %03d | lookup count: %02d\n",
-  analog_val[0], analog_val[2], z, lookup_count);
-  
-  count++;
+    writeBuf_mcp[0] = ((uint16_t)z >> 4) | 0b00110000;
+    writeBuf_mcp[1] = (uint16_t)z << 4;
+
+    spiWrite(fd_mcp, (char *)writeBuf_mcp, 2);
+
+    time_sleep(0.001);
+
+    if (z >= 127) {z = 127 - abs(127 - z) + i; }
+    else {z = 127 + abs(127 - z) - i; }
+
+    z_prev = z;
+    printf("Z: %03d\n", z);
+  }
   
 }
-
-
-int main(void) {
-  
-  createLookup();
-  
-  srand(time(NULL));
-  
-  connect_ads();
+int main(void) {  
   
   gpioInitialise();
+  connect_ads();
   
   fd_mcp = spiOpen(0, 16000000, 0b0000000100000000000000);
   
-  createLookup();
   
   gpioSetISRFunc(17, EITHER_EDGE, 0, &myInterrupt0);
+
   
   while (1) {  }
-  disconnect_ads();
   
+  
+  disconnect_ads();
   spiClose(fd_mcp);
   gpioTerminate();
   
-  
   return 0;
 }
-
-
-

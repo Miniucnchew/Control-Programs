@@ -161,23 +161,23 @@ void myInterrupt0 (void) {
   if (abs(analog_val[0] - analog_val_prev[0]) > 50) {analog_val[0] = analog_val_prev[0];}
   
   double cone_vel = analog_val[2] - analog_val_prev[2];
-  //~ 
-  //~ skip_cycles = analog_val[0] / 100;
-//~ 
-  //~ if (count > skip_cycles) {
-    //~ 
-    //~ z = (127 - cone_vel - abs(analog_val[2] % 700)); // can also use - instead of %
-//~ 
+  
+  skip_cycles = analog_val[0] / 100;
+
+  if (count > skip_cycles) {
+    
+    z = lookup[lookup_count];
+
+    //~ z = (127 - cone_vel - abs(analog_val[2] % 700)); 
+    //~ z = (127 - cone_vel - abs(analog_val[2] - 700)); 
+
+    lookup_count++;
+    if (lookup_count > (lookup_size-1)) {lookup_count = 0;}
   //~ if (z > 255 || z < 0) {z = 127;}
-  //~ 
-  //~ count = 0;
-  //~ } else {z = z_prev;}
   
-  z = 127 + (cone_vel/8)*16; 
-  // Change the multiplier to change length of response. 16 is undamped, higher is unstable.
-  
-  
-  //~ gpioDelay(analog_val[0]/10000);
+  count = 0;
+  } else {z = z_prev;}
+    
   writeBuf[0] = ((uint16_t)z >> 4) | 0b00110000;
   writeBuf[1] = (uint16_t)z << 4;
 
@@ -188,7 +188,8 @@ void myInterrupt0 (void) {
   
   analog_val_prev[0] = analog_val[0];
   
-  printf("Pot Pos: %04d | Dist: %04d | Z: %03d | lookup count: %02d\n",
+  //~ printf("X: %04d | Y: %04d | Z: %04d\n", x, y, (int)z);
+  printf("Cone Vel: %04.1f | Pot Pos: %04d | Dist: %04d | Z: %03d | lookup count: %02d\n", cone_vel, 
   analog_val[0], analog_val[2], z, lookup_count);
   
   count++;
