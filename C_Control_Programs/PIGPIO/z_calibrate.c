@@ -139,7 +139,7 @@ int main(void) {
     scanf("%d", &z);
     printf("Z = %03d | ", z);
     
-    writeBuf_mcp[0] = ((uint16_t)z >> 4) | 0b00110000;
+    writeBuf_mcp[0] = ((uint16_t)z >> 8) | 0b00110000;
     writeBuf_mcp[1] = (uint16_t)z << 4;
     
     spiWrite(fd_mcp, (char *)writeBuf_mcp, 2);

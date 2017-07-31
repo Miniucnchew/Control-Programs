@@ -30,7 +30,7 @@ const float mmPOU = 0.0029; // mm per optical units
 int analog_val[4];
 int analog_val_prev[4];
 
-int w_freq, w_form;
+int w_freq, w_form, offset;
 float amp;
 int button_interrupt_called=0;
 
@@ -39,7 +39,7 @@ void createLookup (int freq, int waveform, float amplitude) {
   
     if (waveform == 1) {
       for (x = 0; x < 1800; x++) {
-        lookup[x] = amplitude*(sin(M_PI*2*(freq*x/1800.0))+1);
+        lookup[x] = offset + amplitude*(sin(M_PI*2*(freq*x/1800.0))+1);
       }
     } else if (waveform == 2) {
       int period = 1800/freq;
@@ -171,6 +171,8 @@ void myInterrupt0 (void) {
   analog_val[2] = Distance Sensor (250-900) (Baseline~=530)
   analog_val[3] = read_ads(3); // Ground
 */
+  //~ if (gpioRead(13) == 0 && bu tton_interrupt_called =
+  
   if (button_interrupt_called == 0) {
     analog_val[1] = read_ads(1);
     analog_val[2] = read_ads(2);
@@ -190,7 +192,7 @@ void myInterrupt0 (void) {
     //~ analog_val[0] = read_ads(0);
     //~ z = lookup[analog_val[0]];
     
-    writeBuf[0] = ((uint16_t)z >> 4) | 0b00110000;
+    writeBuf[0] = ((uint16_t)z >> 8) | 0b00110000;
     writeBuf[1] = (uint16_t)z << 4;
 
     spiWrite(fd_mcp, (char *)writeBuf, 2);
@@ -206,7 +208,7 @@ void myInterrupt0 (void) {
 }
 
 void buttonInterrupt_1(void) {
-  
+  // Pin 13
   button_interrupt_called = 1;
 
   printf("What waveform (1=sinusoid, 2=square, 3=sawtooth): ");
@@ -218,6 +220,7 @@ void buttonInterrupt_1(void) {
 }
 
 void buttonInterrupt_2(void) {
+  // Pin 19
   button_interrupt_called = 1;
   
   printf("What should the fundamental frequency be: ");
@@ -228,6 +231,7 @@ void buttonInterrupt_2(void) {
 }
 
 void buttonInterrupt_3(void) {
+  // Pin 26
   button_interrupt_called = 1;
   
   printf("What amplitude (0-255): ");
@@ -250,8 +254,10 @@ int main(void) {
   scanf("%d", &w_form);
   printf("What should the fundamental frequency be: ");
   scanf("%d", &w_freq); 
-  printf("What amplitude (0-255): ");
+  printf("What amplitude (0-4095): ");
   scanf("%f", &amp);
+  printf("What offset (0-4095): ");
+  scanf("%d", &offset);
   
   gpioDelay(10);
   
