@@ -12,20 +12,57 @@
 #include <errno.h>
 #include <pigpio.h>
 
-unsigned char writeBuf_mcp[2];
-
-int z;
-int i;
 int fd_mcp;
-
+unsigned char writeBuf[2];
+int x, y;
+int i=0;
+volatile int z, z_prev;
+int lookup[1800];
 
 int fd_ads;
-int ads_address = 0x48; 
+int ads_address = 0x48;
 uint8_t writeBuf_ads[3];
 uint8_t readBuf_ads[2];
-int cone_dist;
+float myfloat_ads;
 
 const float mmPOU = 0.0029; // mm per optical units
+
+int analog_val[4];
+int analog_val_prev[4];
+
+int w_freq, w_form, w_off, amp, trial_dur;
+int button_interrupt_called=0;
+
+
+void createLookup (int waveform, int freq, int amplitude, int offset) {
+  
+    if (waveform == 1) {
+      for (x = 0; x < 1800; x++) {
+        lookup[x] = offset + (float)amplitude*((sin(M_PI*2*(freq*x/1800.0))+1));
+        //~ lookup[x] = offset + amplitude/4*((sin(M_PI*2*(freq*x/1800.0))+1) + sin(M_PI*2*(freq*2*x/1800.0))+1 );
+      }
+    } else if (waveform == 2) {
+      int period = 1800/freq;
+      int p_count = 0;
+      for (x = 0; x < 1800; x++) {
+        if (x % period == 0 && x > 0) {p_count++;}
+        if (abs(period - (x - p_count*period)) > period/2) {lookup[x] = 0;}
+        else {lookup[x] = amplitude;}
+      }
+    } else if (waveform == 3) {
+      int period = 1800/freq;
+      int p_count = 0;
+      for (x = 0; x < 1800; x++) {
+        if (x % period == 0 && x > 0) {p_count++;}
+        lookup[x] = (x - p_count*period)*amplitude/period;
+      }
+    }
+    
+    
+    //~ lookup[x] += rand() % 10; 
+    //~ lookup[x] = (int)(100*x/1800.0);
+}
+
 
 
 void connect_ads(void) {
@@ -43,6 +80,8 @@ void connect_ads(void) {
   }
 
 }
+
+
 
 void disconnect_ads(void) {
   // power down ADS1115
@@ -125,41 +164,83 @@ int read_ads(int channel)   {
   return val_ads;
 } 
 
+void myInterrupt0 (void) { 
+/*
+  analog_val[0] = Position (0-1750) (Baseline~=120->130)
+  analog_val[1] = Force (0-1400) (tare to change baseline)
+  analog_val[2] = Distance Sensor (250-900) (Baseline~=530)
+  analog_val[3] = read_ads(3); // Ground
+*/
+  
+  if (button_interrupt_called == 0) {
+    analog_val[1] = read_ads(1);
+    analog_val[2] = read_ads(2);
+    
+    if (analog_val[1] > 50) {
+      analog_val[0] = read_ads(0); // Position (0-1750) (Baseline~=120->130)
+      z = lookup[analog_val[0]];
+            
+      z_prev = z;
+      
+    } else {
+      z = z_prev;
+      analog_val[0] = analog_val_prev[0];
+    }
+    
+    writeBuf[0] = (z >> 8) | 0b00110000;
+    writeBuf[1] = z & 0xff;
 
-int main(void) {  
+    spiWrite(fd_mcp, (char *)writeBuf, 2);
+    
+    analog_val_prev[0] = analog_val[0];
+    
+    //~ printf("Pos: %04d | Force: %04d | Dist: %04d | Z: %03d\n", analog_val[0], 
+    //~ analog_val[1], analog_val[2], z);
+  } 
+
+}
+
+int main(int argc, char *argv[]) {
   
-  gpioInitialise();
-  connect_ads();
-  
-  fd_mcp = spiOpen(0, 16000000, 0b0000000100000000000000);
-  
-  
-  while (1) {
-    printf("Z Value: ");
-    scanf("%d", &z);
-    printf("Z = %03d | ", z);
-    
-    writeBuf_mcp[0] = (z >> 8) | 0b00110000;
-      // Bit 15: Output Selection. 1 = DAC_B | 0 = DAC_A
-      // Bit 14: Don't care. XXX
-      // Bit 13: Output gain select bit. 1 = Vout = 0->2.048V | 0 = Vout = 0->4.096V
-      // Bit 12: SHDN. 1 = Power on | 0 = Power off
-      // Bit 11->0: Data bits. 
-    writeBuf_mcp[1] = z & 0xff;
-    
-    spiWrite(fd_mcp, (char *)writeBuf_mcp, 2);
-    
-    time_sleep(0.5);
-    
-    cone_dist = read_ads(2);
-    
-    printf("Cone Dist = %03d = %1.3f \n\n", cone_dist, (cone_dist-803.0)*mmPOU); 
+  if (argc != 6) {
+    printf("usage: sudo ./parameter_test waveform frequency amplitude offset trial_duration"); 
+    exit(1);
   }
   
+  srand(time(NULL));
+  
+  connect_ads();    
+  
+  gpioInitialise();
+  
+  fd_mcp = spiOpen(0, 16000000, 0b0000000100000000000000);
+   
+  w_form = atoi(argv[1]);
+  w_freq = atoi(argv[2]);
+  amp = atoi(argv[3]);
+  w_off = atoi(argv[4]);
+  trial_dur = atoi(argv[5]);
+  
+  //~ printf("waveform: %d | frequency: %d | amplitude: %d | offset: %d", w_form, w_freq, amp, w_off);
+  
+  //~ gpioSleep(0, 3, 0);
+  
+  createLookup(w_form, w_freq, amp, w_off);
+  
+  gpioSetISRFunc(17, EITHER_EDGE, 0, myInterrupt0);
+  
+  gpioSleep(0, trial_dur, 0);
+  
+  gpioSetISRFunc(17, EITHER_EDGE, 0, NULL);
   
   disconnect_ads();
+  
   spiClose(fd_mcp);
   gpioTerminate();
   
+  
   return 0;
 }
+
+
+

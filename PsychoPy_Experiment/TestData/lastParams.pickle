@@ -1,0 +1,25 @@
+(dp1
+S'starting amplitude'
+p2
+I300
+sS'observer'
+p3
+Vods7
+p4
+sS'waveform'
+p5
+I1
+sS'frequency'
+p6
+I40
+sS'dateStr'
+p7
+V2017_Aug_08_1052
+p8
+sS'offset'
+p9
+I0
+sS'duration'
+p10
+I3
+s.
