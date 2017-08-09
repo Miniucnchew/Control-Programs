@@ -17,16 +17,14 @@ unsigned char writeBuf_mcp[2];
 int z;
 int i;
 int fd_mcp;
-
+int print_out = 1;
+double time_stamp, time_now;
 
 int fd_ads;
 int ads_address = 0x48; 
 uint8_t writeBuf_ads[3];
 uint8_t readBuf_ads[2];
 int cone_dist;
-
-const float mmPOU = 0.0029; // mm per optical units
-
 
 void connect_ads(void) {
 
@@ -126,18 +124,22 @@ int read_ads(int channel)   {
 } 
 
 
-int main(void) {  
-  
-  gpioInitialise();
-  connect_ads();
-  
-  fd_mcp = spiOpen(0, 16000000, 0b0000000100000000000000);
-  
-  
-  while (1) {
+void dist_read(void) {
+  cone_dist = read_ads(2);
+  if (print_out == 1) {
+    printf("Cone Dist = %04d\n", cone_dist);// = %0.3fmm\n", cone_dist, (cone_dist-349)*0.008);
+  }
+}
+
+void z_set(void) {
+    
+  time_now = time_time();
+  if ((time_now - time_stamp) >= 0.3) {
+    print_out = 0;
+    
     printf("Z Value: ");
     scanf("%d", &z);
-    printf("Z = %03d | ", z);
+    printf("Z = %04d \n\n", z);
     
     writeBuf_mcp[0] = (z >> 8) | 0b00110000;
       // Bit 15: Output Selection. 1 = DAC_B | 0 = DAC_A
@@ -149,11 +151,33 @@ int main(void) {
     
     spiWrite(fd_mcp, (char *)writeBuf_mcp, 2);
     
-    time_sleep(0.5);
+    time_stamp = time_now;
     
-    cone_dist = read_ads(2);
+    print_out = 1;
+  }
+}
+
+int main(void) {  
+  
+  gpioInitialise();
+  connect_ads();
+  
+  time_stamp = time_time();
+  
+  fd_mcp = spiOpen(0, 16000000, 0b0000000100000000000000);
+  
+  gpioSetTimerFunc(0, 1000, dist_read);
+  
+  gpioSetISRFunc(13, FALLING_EDGE, 0, &z_set); 
+  
+  while (1) {
+
     
-    printf("Cone Dist = %03d = %1.3f \n\n", cone_dist, (cone_dist-803.0)*mmPOU); 
+    //~ time_sleep(0.5);
+    
+    //~ cone_dist = read_ads(2);
+    //~ 
+    //~ printf("Cone Dist = %03d = %1.3f \n\n", cone_dist, (cone_dist-803.0)*mmPOU); 
   }
   
   
