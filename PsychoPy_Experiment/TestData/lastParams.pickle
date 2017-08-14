@@ -9,17 +9,20 @@ p4
 sS'waveform'
 p5
 I1
-sS'frequency'
+sS'max reversals'
 p6
-I40
-sS'dateStr'
+I6
+sS'frequency'
 p7
-V2017_Aug_09_1314
+I20
+sS'dateStr'
 p8
-sS'offset'
+V2017_Aug_14_1233
 p9
+sS'offset'
+p10
 I0
 sS'duration'
-p10
-I3
+p11
+I5
 s.
