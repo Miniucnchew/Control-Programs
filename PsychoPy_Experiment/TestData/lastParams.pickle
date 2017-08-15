@@ -2,27 +2,20 @@
 S'starting amplitude'
 p2
 I300
-sS'observer'
-p3
-Vods7
-p4
 sS'waveform'
-p5
+p3
 I1
 sS'max reversals'
-p6
-I6
+p4
+I8
 sS'frequency'
-p7
-I20
-sS'dateStr'
-p8
-V2017_Aug_14_1233
-p9
-sS'offset'
-p10
-I0
+p5
+I40
 sS'duration'
-p11
-I5
+p6
+I3
+sS'subject ID'
+p7
+Vs1_1
+p8
 s.
