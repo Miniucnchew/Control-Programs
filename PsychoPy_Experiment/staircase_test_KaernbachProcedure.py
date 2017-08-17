@@ -89,11 +89,15 @@ def message_disp(trial):
 
 resp_corr, reversals = [], []
 exit_loop, i = 0, 0
-newAmp = expInfo['starting amplitude']*2 # newAmp starts greater than the constant amplitude
+newAmp = expInfo['starting amplitude']*2 + int(numpy.random.random()*100-50) # newAmp starts greater than the constant amplitude
 #newAmp = expInfo['starting amplitude']/2 # newAmp starts less than the constant amplitude
 response_dict = {0:'Unsure', 1:'1st', 2:'2nd'}
 
-step_size = [int(newAmp*(1./2.)**n) for n in [2,3,3,4,4,5,5,6,6]]
+#step_size = [int(newAmp*(1./2.)**n) for n in [2,3,3,4,4,5,5,6,6]]
+#step_size = [100, 100, 75, 50, 50, 25, 25]
+#step_size = [100, 80, 60, 50, 40, 25, 15]
+step_size = [110, 75, 40, 30, 20, 15, 10] 
+
 while exit_loop == 0: 
     
     diff = expInfo['starting amplitude'] - newAmp
@@ -145,13 +149,22 @@ while exit_loop == 0:
     oldAmp = newAmp
     
     if ((thisResp == 1) and (firstAmp > secondAmp)) or ((thisResp == 2) and (firstAmp < secondAmp)):
-        newAmp -= step_size[len(reversals)] # Correct response - Reduce difference by one step
+        if (len(step_size) > len(reversals)):
+            newAmp -= step_size[len(reversals)] # Correct response - Reduce difference by one step
+        else:
+            newAmp -= step_size[len(step_size)-1] # Correct response - Reduce difference by one step
         resp_corr += [1]
     elif ((thisResp == 1) and (firstAmp <= secondAmp)) or ((thisResp == 2) and (firstAmp >= secondAmp)):
-        newAmp += 3*step_size[len(reversals)] # Incorrect response - Increase difference by 3 steps
+        if (len(step_size) > len(reversals)):
+            newAmp += 3*step_size[len(reversals)] # Incorrect response - Increase difference by 3 steps
+        else:
+            newAmp += 3*step_size[len(step_size)-1] # Incorrect response - Increase difference by 3 steps
         resp_corr += [0]
     elif (thisResp == 0):
-        newAmp += step_size[len(reversals)] # Unsure response - Increase difference by 1 step
+        if (len(step_size) > len(reversals)):
+            newAmp += step_size[len(reversals)] # Unsure response - Increase difference by 1 step
+        else:
+            newAmp += step_size[len(step_size)-1] # Unsure response - Increase difference by 1 step
         resp_corr += [0]
     
     if (newAmp < expInfo['starting amplitude']):

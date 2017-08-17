@@ -1,13 +1,11 @@
 Texture 1 Amp | Texture 2 Amp | User Response | Response Correct? | Reversal Point?
-     300      |      600      |      2nd      |         1         |      False     
-     450      |      300      |      1st      |         1         |      False     
-     300      |      300      |    Unsure     |         0         |      True      
-     450      |      300      |      1st      |         1         |      True      
-     300      |      375      |      2nd      |         1         |      False     
-     300      |      300      |    Unsure     |         0         |      True      
-     300      |      375      |      2nd      |         1         |      True      
-     300      |      338      |    Unsure     |         0         |      True      
+     600      |      300      |      1st      |         1         |      False     
+     500      |      300      |      1st      |         1         |      False     
+     400      |      300      |    Unsure     |         0         |      True      
+     425      |      300      |      1st      |         1         |      True      
+     300      |      325      |    Unsure     |         0         |      True      
+     350      |      300      |    Unsure     |         0         |      False     
      375      |      300      |      1st      |         1         |      True      
-     300      |      357      |      2nd      |         1         |      False     
-     300      |      339      |    Unsure     |         0         |      True      
-     357      |      300      |      1st      |         1         |      True      
+     325      |      300      |    Unsure     |         0         |      True      
+     300      |      350      |      2nd      |         1         |      True      
+     300      |      325      |    Unsure     |         0         |      True      
