@@ -33,6 +33,10 @@ int analog_val_prev[4];
 int w_freq, w_form, w_off, amp, trial_dur;
 int button_interrupt_called=0;
 
+float sum_vel = 0;
+uint32_t velocity = 0;
+float avg;
+clock_t start_t, end_t, total_t;
 
 void createLookup (int waveform, int freq, int amplitude, int offset) {
   
@@ -170,7 +174,8 @@ void myInterrupt0 (void) {
   analog_val[1] = Force (0-1400) (tare to change baseline)
   analog_val[2] = Distance Sensor (250-900) (Baseline~=530)
   analog_val[3] = read_ads(3); // Ground
-*/
+*/   
+    
   
   if (button_interrupt_called == 0) {
     analog_val[1] = read_ads(1);
@@ -192,7 +197,17 @@ void myInterrupt0 (void) {
 
     spiWrite(fd_mcp, (char *)writeBuf, 2);
     
-    analog_val_prev[0] = analog_val[0];
+    //~ end_t = clock();
+    
+    //~ velocity = (analog_val[0] - analog_val_prev[0])*(10.1/1800)/((double)(end_t-start_t)/CLOCKS_PER_SEC);
+    //~ sum_vel += velocity;
+    //~ i++; 
+    
+    //~ printf("Pos: %d\n", analog_val[0]);
+    //~ 
+    //~ analog_val_prev[0] = analog_val[0];
+    //~ start_t = clock();
+    
     
     //~ printf("Pos: %04d | Force: %04d | Dist: %04d | Z: %03d\n", analog_val[0], 
     //~ analog_val[1], analog_val[2], z);
@@ -232,6 +247,10 @@ int main(int argc, char *argv[]) {
   gpioSleep(0, trial_dur, 0);
   
   gpioSetISRFunc(17, EITHER_EDGE, 0, NULL);
+  
+  //~ avg = 1.0*(sum_vel/i);
+  
+  //~ printf("Average Velocity: %fcm/s \n", avg);
   
   disconnect_ads();
   

@@ -7,26 +7,21 @@ import time, numpy, random
 from subprocess import call
 
 try:#try to get a previous parameters file
-    expInfo = fromFile('TestData/AmplitudeData/lastParams.pickle')
+    expInfo = fromFile('TestData/FrequencyData/lastParams.pickle')
 except:#if not there then use a default set
     expInfo = {'subject ID':'s1_1', 'waveform':1, 'frequency':20, 'starting amplitude':300, 'duration':5, 'max reversals':8}
 #present a dialogue to change params
 dlg = gui.DlgFromDict(expInfo, title='JND Exp')
 if dlg.OK:
-    toFile('TestData/AmplitudeData/lastParams.pickle', expInfo)#save params to file for next time
+    toFile('TestData/FrequencyData/lastParams.pickle', expInfo)#save params to file for next time
 else:
     core.quit()#the user hit cancel so exit
 
 #make a text file to save data
-fileName = 'TestData/AmplitudeData/' + expInfo['subject ID'] 
+fileName = 'TestData/FrequencyData/' + expInfo['subject ID'] 
 dataFile = open(fileName+'.txt', 'w')#a simple text file
-dataFile.write('Texture 1 Amp | Texture 2 Amp | User Response | Response Correct? | Reversal Point?\n')
-#                           13            |           13          |           13          |             17               |             15         
-
-comFileName = 'TestData/ComputerData/'+expInfo['subject ID']
-comDataFile = open(comFileName+'.txt', 'w')
-
-
+dataFile.write('Texture 1 Freq | Texture 2 Freq | User Response | Response Correct? | Reversal Point?\n')
+#                           14            |           14          |           13          |             17               |             15         
 #create window and stimuli
 win = visual.Window([1600,1200],allowGUI=False, monitor='testMonitor', units='cm', fullscr=True)
 win.mouseVisible = False
@@ -52,42 +47,40 @@ message_stim1_wait = visual.TextStim(win, text = 'Texture 1 will begin in 1 seco
 message_stim1 = visual.TextStim(win, text = 'Texture 1')
 message_stim2_wait = visual.TextStim(win, text = 'Texture 2 will begin in 1 second')
 message_stim2 = visual.TextStim(win, text = 'Texture 2')
-message_response = visual.TextStim(win, text = 'If the first texture was stronger, press the left arrow key'
-    +' ,if the second texture was stronger, press the right arrow key.'
-    +' If you are unsure of which stimulus is stronger, press the down arrow key. \n\n'
+message_response = visual.TextStim(win, text = 'If the first texture had a higher frequency, press the left arrow key'
+    +' ,if the second texture had a higher frequency, press the right arrow key.'
+    +' If you are unsure of which stimulus has a higher frequency, press the down arrow key. \n\n'
     +'If you would like to replay one of the stimuli, press the number key corresponding to the stimulus you would like to return to.')
-image_response = visual.ImageStim(win, image = 'PsychExperiment_KeyboardInstructions.png', units = 'pix', interpolate = True)#, size = [1440, 1080]), pos = [0, -2])
+image_response = visual.ImageStim(win, image = 'PsychExperiment_KeyboardInstructions_Frequency.png', units = 'pix', interpolate = True)#, size = [1440, 1080]), pos = [0, -2])
 
 offset = 1500
 
-def call_texture(stim, setAmp):
+def call_texture(stim, setFreq):
     #call c function through command line 
     if stim == 0:
         call(' '.join(["sudo ./parameter_test", str(expInfo['waveform']), str(expInfo['frequency']),
         str(expInfo['starting amplitude']), str(offset), str(expInfo['duration'])]), shell=True)
     elif stim == 1:
-        call(' '.join(["sudo ./parameter_test", str(expInfo['waveform']), str(expInfo['frequency']),
-        str(int(setAmp)), str(offset), str(expInfo['duration'])]), shell=True)
+        call(' '.join(["sudo ./parameter_test", str(expInfo['waveform']), str(int(setFreq)),
+        str(expInfo['starting amplitude']), str(offset), str(expInfo['duration'])]), shell=True)
     else:
         pass
 
-def message_disp(trial, wait=True):
+def message_disp(trial):
     if (trial == 1):
         win.setColor('blue')
         win.flip()
-        if (wait == True):
-            message_stim1_wait.draw()
-            win.flip()
-            core.wait(1)
+        message_stim1_wait.draw()
+        win.flip()
+        core.wait(1)
         message_stim1.draw()
         win.flip()
     elif (trial == 2):
         win.setColor('green')
         win.flip()
-        if (wait == True):
-            message_stim2_wait.draw()
-            win.flip()
-            core.wait(1)
+        message_stim2_wait.draw()
+        win.flip()
+        core.wait(1)
         message_stim2.draw()
         win.flip()
     elif (trial == 3):
@@ -101,32 +94,28 @@ def message_disp(trial, wait=True):
 
 resp_corr, reversals = [], []
 exit_loop, i = 0, 0
-newAmp = expInfo['starting amplitude']*2 + int(numpy.random.random()*100-50) # newAmp starts greater than the constant amplitude
+newFreq = expInfo['frequency']*2 + int(numpy.random.random()*10-5) # newAmp starts greater than the constant amplitude
 #newAmp = expInfo['starting amplitude']/2 # newAmp starts less than the constant amplitude
 response_dict = {0:'Unsure', 1:'1st', 2:'2nd'}
 
-#step_size = [int(newAmp*(1./2.)**n) for n in [2,3,3,4,4,5,5,6,6]]
-#step_size = [100, 100, 75, 50, 50, 25, 25]
-#step_size = [100, 80, 60, 50, 40, 25, 15]
-step_size = [110, 75, 40, 30, 20, 15, 10] 
+
+step_size = [8,7,6,5,4,3,2,1] 
 
 while exit_loop == 0: 
     
-    diff = expInfo['starting amplitude'] - newAmp
-    
     stim_order = round(numpy.random.random())
     if stim_order == 0:
-        firstAmp = expInfo['starting amplitude']
-        secondAmp = newAmp
+        firstFreq = expInfo['frequency']
+        secondFreq = newFreq
     else:
-        firstAmp = newAmp
-        secondAmp = expInfo['starting amplitude']
+        firstFreq = newFreq
+        secondFreq = expInfo['frequency']
     
     message_disp(1)
-    call_texture(stim_order, int(newAmp))
+    call_texture(stim_order, int(newFreq))
     
     message_disp(2)
-    call_texture((not stim_order), int(newAmp))
+    call_texture((not stim_order), int(newFreq))
     
     core.wait(0.1)
     message_disp(3)
@@ -142,12 +131,12 @@ while exit_loop == 0:
 #        allKeys = iohub.client.keyboard.KeyboardPress()
         for thisKey in allKeys:
             if (thisKey == '1'): 
-                message_disp(1, wait=False)
-                call_texture(stim_order, int(newAmp))
+                message_disp(1)
+                call_texture(stim_order, int(newFreq))
                 message_disp(3)
             elif (thisKey == '2'):
-                message_disp(2, wait=False)
-                call_texture((not stim_order), int(newAmp))
+                message_disp(2)
+                call_texture((not stim_order), int(newFreq))
                 message_disp(3)
             elif (thisKey == 'left'):
                 thisResp = 1
@@ -163,37 +152,37 @@ while exit_loop == 0:
     
 #    print(thisResp)
     
-    oldAmp = newAmp
+    oldFreq = newFreq
     
-    if ((thisResp == 1) and (firstAmp > secondAmp)) or ((thisResp == 2) and (firstAmp < secondAmp)):
+    if ((thisResp == 1) and (firstFreq > secondFreq)) or ((thisResp == 2) and (firstFreq < secondFreq)):
         if (len(step_size) > len(reversals)):
-            newAmp -= step_size[len(reversals)] # Correct response - Reduce difference by one step
+            newFreq -= step_size[len(reversals)] # Correct response - Reduce difference by one step
         else:
-            newAmp -= step_size[len(step_size)-1] # Correct response - Reduce difference by one step
+            newFreq -= step_size[len(step_size)-1] # Correct response - Reduce difference by one step
         resp_corr += [1]
-    elif ((thisResp == 1) and (firstAmp <= secondAmp)) or ((thisResp == 2) and (firstAmp >= secondAmp)):
+    elif ((thisResp == 1) and (firstFreq <= secondFreq)) or ((thisResp == 2) and (firstFreq >= secondFreq)):
         if (len(step_size) > len(reversals)):
-            newAmp += 3*step_size[len(reversals)] # Incorrect response - Increase difference by 3 steps
+            newFreq += 3*step_size[len(reversals)] # Incorrect response - Increase difference by 3 steps
         else:
-            newAmp += 3*step_size[len(step_size)-1] # Incorrect response - Increase difference by 3 steps
+            newFreq += 3*step_size[len(step_size)-1] # Incorrect response - Increase difference by 3 steps
         resp_corr += [0]
     elif (thisResp == 0):
         if (len(step_size) > len(reversals)):
-            newAmp += step_size[len(reversals)] # Unsure response - Increase difference by 1 step
+            newFreq += step_size[len(reversals)] # Unsure response - Increase difference by 1 step
         else:
-            newAmp += step_size[len(step_size)-1] # Unsure response - Increase difference by 1 step
+            newFreq += step_size[len(step_size)-1] # Unsure response - Increase difference by 1 step
         resp_corr += [0]
     
-    if (newAmp < expInfo['starting amplitude']):
-        newAmp = expInfo['starting amplitude']
-    elif (newAmp > 1000):
-        newAmp = 1000
+    if (newFreq < expInfo['frequency']):
+        newFreq = expInfo['frequency']
+    elif (newFreq > 100):
+        newFreq = 100
     
 #    print(resp_corr)
     reversal_point = 'False'
     if (len(resp_corr) > 2):
         if ((resp_corr[i] - resp_corr[i-1]) != 0):
-            reversals += [[i, oldAmp]]
+            reversals += [[i, oldFreq]]
             reversal_point = 'True'
         else:
             reversal_point = 'False'
@@ -201,9 +190,9 @@ while exit_loop == 0:
     if (len(reversals) >= expInfo['max reversals']):
         exit_loop = 1
         
-    write_list = ['{:^13d}'.format(firstAmp), '{:^13d}'.format(secondAmp), '{:^13}'.format(response_dict[thisResp]), '{:^17d}'.format(resp_corr[i]), '{:^15}'.format(reversal_point)]
+    write_list = ['{:^13d}'.format(firstFreq), '{:^14d}'.format(secondFreq), '{:^14}'.format(response_dict[thisResp]), '{:^17d}'.format(resp_corr[i]), '{:^15}'.format(reversal_point)]
     
-    comDataFile.write(str(oldAmp) + '\n')
+    
     dataFile.write(' | '.join(str(e) for e in write_list) + '\n')
     core.wait(1)
     i += 1
@@ -229,3 +218,22 @@ event.waitKeys() #wait for participant to respond
 
 win.close()
 core.quit()
+
+
+
+#with open('s1_4.txt') as file:
+#    data = file.readlines()
+#data
+#data
+#data = [x.rstrip('\n') for x in data]
+#data
+#data = [int(x) for x in data]
+
+
+
+
+
+
+
+
+
